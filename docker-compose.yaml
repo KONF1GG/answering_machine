@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: answering_machine
+    restart: always
+    env_file:
+      - path: ./.env
