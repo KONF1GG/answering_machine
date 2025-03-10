@@ -83,6 +83,7 @@ def get_message():
 
     
 if __name__ == "__main__":
+    print('START')
     while True:
         get_message()
 
