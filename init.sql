@@ -1,7 +1,7 @@
 USE calls;
 
 CREATE TABLE IF not EXISTS ChatParameters (
-    id_str VARCHAR(30) PRIMARY KEY,
+    id_str VARCHAR(30),
     login_ai VARCHAR(30) NULL,
     login_1c VARCHAR(30) NULL,
     prompt TEXT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE IF not EXISTS ChatParameters (
 
 
 CREATE TABLE IF not EXISTS ChatStory (
-    id_str VARCHAR(30) PRIMARY KEY,
+    id_str VARCHAR(30),
     mes TEXT NULL,
     dt DATETIME NULL,
     messageId VARCHAR(100) NULL,
