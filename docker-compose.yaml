@@ -13,6 +13,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql  
   bot:
     build:
       context: .
@@ -23,3 +24,6 @@ services:
       - path: ./.env
     depends_on:
       - db
+
+volumes:
+  mysql-data:
