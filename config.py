@@ -5,7 +5,7 @@ dotenv_values()
 
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
-MYSQL_HOST = os.getenv('MYSQL_HOST', 'db')
+MYSQL_HOST = os.getenv('MYSQL_HOST')
 MYSQL_PORT = os.getenv('MYSQL_PORT', 3306)
 
 #API_KEY = os.getenv('API_KEY')
