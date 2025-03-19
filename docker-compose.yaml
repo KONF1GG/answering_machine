@@ -6,14 +6,15 @@ services:
     container_name: db
     restart: always
     ports:
-      - "3305:3306"
+      - "3305:3306"  # Порт MySQL на хосте: 3305
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - mysql-data:/var/lib/mysql  
+      - mysql-data:/var/lib/mysql  # Том для сохранения данных
+
   bot:
     build:
       context: .
@@ -24,6 +25,15 @@ services:
       - path: ./.env
     depends_on:
       - db
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - db  
 
 volumes:
   mysql-data:
