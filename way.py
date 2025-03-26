@@ -13,10 +13,30 @@ categoryes = ['Личный кабинет', 'Расторжение догов�
             'Баланс', 'Домофония', 'Повышение стоимости', 'Сервисный выезд', 'Отсутствие интернета', 'Приветствие']
 
 
+def login_application(mes):
+    id_str = mes['id_str_sql']
+    id_int = mes['id_int']
+    chatBot = mes['chatBot']
+    with requests.get(f'https://ws.freedom1.ru/redis/jivoid:{id_str}') as response:
+        data = json.loads(json.loads(response.text))
+
+    if 'login' in data:
+        login = data['login']
+        db_connection = db_connextion()
+        cur = db_connection.cursor(buffered=True)
+        cur.execute(f'update ChatParameters set login_1c = "{login}" where id_int = "{id_int}" and id_str = "{id_str}" and chat_bot = "{chatBot}"')
+        db_connection.commit()
+        db_connection.close()
+
+        return True
+    return False
+
+
 def is_login(mes):
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
+
     sql = f'select login_ai, login_1c from ChatParameters where id_int = "{id_int}" and id_str = "{id_str}" and chat_bot = "{chatBot}"'
     print(sql)
     db_connection = db_connextion()
@@ -28,8 +48,11 @@ def is_login(mes):
     if row: 
         if row[0] not in ['', None] or row[1] not in ['', None]:
             return True
-        return False  
+           
+    if 'приложение' in chatBot:
+        return login_application(mes)
     return False
+
 
 def is_abon_info_mes(mes):
     text = mes['text']

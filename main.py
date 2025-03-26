@@ -3,16 +3,22 @@ import json
 from connections import db_connextion
 from way import start
 import time
+from datetime import datetime, timedelta
+
 
 
 def get_message():
-    try:          
+    try:        
+        dt_now = datetime.now() - timedelta(seconds=15)
+        dt_for_select = dt_now.strftime('%Y-%m-%d %H:%M:%S')
+
         db_connection = db_connextion()
         cur = db_connection.cursor(buffered=True)
-        cur.execute('''
+        cur.execute(f'''
                 select * from ChatStory join ChatParameters
                 on ChatStory.id_int = ChatParameters.id_int and ChatStory.id_str = ChatParameters.id_str
-                where ChatStory.ai_send = 0 and ChatStory.empl = 0 limit 1
+                where ChatStory.ai_send = 0 and ChatStory.empl = 0 
+                and ChatStory.dt < "{dt_for_select}" limit 1
             ''')
         row = cur.fetchone()
         db_connection.close()
