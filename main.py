@@ -5,14 +5,17 @@ from way import start
 import time
 from datetime import datetime, timedelta
 
+import pytz
 
 
 def get_message():
-    try:        
-        dt_15sec = datetime.now() - timedelta(seconds=15)
+    try:    
+        tz = pytz.timezone('Asia/Yekaterinburg')
+    
+        dt_15sec = datetime.now(tz) - timedelta(seconds=15)
         dt15sec_for_select = dt_15sec.strftime('%Y-%m-%d %H:%M:%S')
 
-        dt_5min = datetime.now() - timedelta(minutes=5)
+        dt_5min = datetime.now(tz) - timedelta(minutes=5)
         dt5min_for_select = dt_5min.strftime('%Y-%m-%d %H:%M:%S')
 
         db_connection = db_connextion()
