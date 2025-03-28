@@ -16,4 +16,3 @@ ENV UV_PROJECT_ENVIRONMENT=/env
 RUN uv sync --frozen --no-cache
 
 CMD ["uv", "run", "main.py"]
-)
