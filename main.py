@@ -12,9 +12,6 @@ def get_message():
     try:    
         tz = pytz.timezone('Asia/Yekaterinburg')
     
-        dt_15sec = datetime.now(tz) - timedelta(seconds=15)
-        dt15sec_for_select = dt_15sec.strftime('%Y-%m-%d %H:%M:%S')
-
         dt_5min = datetime.now(tz) - timedelta(minutes=5)
         dt5min_for_select = dt_5min.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -24,7 +21,7 @@ def get_message():
                 select * from ChatStory join ChatParameters
                 on ChatStory.id_int = ChatParameters.id_int and ChatStory.id_str = ChatParameters.id_str
                 where ChatStory.ai_send = 0 and ChatStory.empl = 0 
-                and ChatStory.dt < "{dt15sec_for_select}" and ChatStory.dt > "{dt5min_for_select}" limit 1
+                and ChatStory.dt > "{dt5min_for_select}" limit 1
             ''')
         row = cur.fetchone()
         db_connection.close()
