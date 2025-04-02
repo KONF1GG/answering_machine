@@ -11,7 +11,7 @@ import pytz
 def get_message():
     try:    
         tz = pytz.timezone('Asia/Yekaterinburg')
-    
+        
         dt_5min = datetime.now(tz) - timedelta(minutes=5)
         dt5min_for_select = dt_5min.strftime('%Y-%m-%d %H:%M:%S')
 
