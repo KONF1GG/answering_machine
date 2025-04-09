@@ -110,3 +110,35 @@ def isDiscount(login):
     if discounts != []:
         return True
     return False
+
+
+def isNotPayment(login):
+    with requests.get(f'{REDIS}login:{login}') as get_login_text:
+        get_login = json.loads(json.loads(get_login_text.text))
+
+    payment = get_login['payment']
+    payment_next = get_login['paymentNext']
+    if int(payment) == 0 and payment_next == False:
+        return True
+    return False
+
+def IsPauseAndPayment(login):
+    with requests.get(f'{REDIS}login:{login}') as get_login_text:
+        get_login = json.loads(json.loads(get_login_text.text))
+
+    next_payment = get_login.get('paymentNext', 'Неизвестно')
+    today = datetime.now().day
+
+    houseid = get_login.get('houseId', 'Неизвестно')
+
+    with requests.get(f'{REDIS}adds:{houseid}') as houseres:
+        house = json.loads(json.loads(houseres.text))
+
+    with requests.get(f'{REDIS}terrtar:{house["territoryId"]}') as territory:
+        ter = json.loads(json.loads(territory.text))
+                
+    deactivation_date = ter.get('shutdownday', 0)
+
+    if today < deactivation_date and not next_payment:
+        return True
+    return False
