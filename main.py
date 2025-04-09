@@ -34,7 +34,6 @@ def get_message():
             dt = row[2]
             messageId = row[3]
             id_int = row[4]
-            empl = row[5]
             login = row[13]
             chatBot = row[21]
 
@@ -67,6 +66,7 @@ def get_message():
                 'chatBot': chatBot,
                 'text': mes,
                 'dt': dt,
+                'prompt': 'scheme:prompt'
             }
 
             db_connection = db_connextion()
@@ -80,7 +80,6 @@ def get_message():
             with requests.get(f'https://ws.freedom1.ru/redis/scheme:petya') as response:
                 data = json.loads(json.loads(response.text))
             #if id_int in [1036498173, 303455267]:
-            print(mes)
             start('start', mes_info, data)  
             time.sleep(5) 
         return
