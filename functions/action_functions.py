@@ -25,9 +25,6 @@ def extract_words(text, login):
 
 def get_to_1c(id, id_int, chatBot, messageId, ans, login, category, date):
 
-    print('зашел')
-    print(ans)
-
     if ans == 'Передать диспетчеру':
         dt = date.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -65,15 +62,12 @@ def get_to_1c(id, id_int, chatBot, messageId, ans, login, category, date):
                     "SendFromBot": send,
                     "login": login,
                     "category": category,
-                    "ContactUpdateData":"аа"}
-    print(post_ans)    
+                    "ContactUpdateData":"аа"}  
     
 
     try:
         response = requests.post(url, data=json.dumps(post_ans))
         response.raise_for_status()  # Вызывает исключение, если код ответа не 200
-        print(response.status_code)
-        print(response.text)
     except requests.RequestException as e:
         print(f"Ошибка при выполнении запроса: {e}")
 
@@ -110,13 +104,15 @@ def find_login(mes):
         
         elif row[0] == 'login_search_mes_sent':
             story = row[2]
-            promt = f'''
-                    Ты - специалист службы поддержки компании "Фридом", интернет-провайдера. И твоя задача сейчас распознать данные абонента для его корректной 
-                    индентификации. Необходимые для этого данные: полный адрес, включая населенный пункт, улицу, дом и, если есть, квартиру. Или номер договора, 
-                    который состоит из шести цифр. Будь вежливым и понимающим. Не здоровайся! Если не сможешь узнать данные абонента за два вопроса (именно два!), 
-                    сообщи только кодовую фразу: "Передать диспетчеру". История общения с абонентом: {story}.
-                    Сообщение, на которое ты должен ответить:               
-                '''
+            prompt_name = 'support_identification'
+            prompt_scheme = mes['prompt']
+
+            with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
+                prompt_data = json.loads(json.loads(res.text))
+
+            template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
+            promt = template.format(story=story)
+
             ans = mistral(promt, mes['text'])
             get_to_1c(id_str, id_int, chatBot, messageId, ans, '', category, mes['dt'])
 
@@ -137,22 +133,16 @@ def get_login(mes):
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
     mes_dict = mes
-    print(mes)
     db_connection = db_connextion()
     cur = db_connection.cursor(buffered=True)
     cur.execute(f'select login_ai, login_1c from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
     row = cur.fetchone()
     db_connection.close()
-    print(row)
+
     if row[0] not in ['', None]:
-        print('11111111111111 ai')
         mes_dict['login'] = row[0]
     elif row[1] != '':
-        print('222222222222222222222222222222222 1c')
         mes_dict['login'] = row[1]
-    print('GET LOGIN!!!!!!!!!!!!!')
-    print(mes_dict['login'])
-    print(mes_dict)
     return mes_dict
 
 
@@ -196,10 +186,19 @@ def all_mes_on_day(mes):
     
 
 def category(mes):
-    categoryes = ['Личный кабинет', 'Расторжение договора', 'Видеонаблюдение', 
-            'Переезд', 'Подключение', 'Проверка скорости', 'Оборудование', 'Оплата', 
-            'Тарифы', 'Телевидение', 'Баланс', 'Домофония', 'Повышение стоимости', 
-            'Сервисный выезд', 'Отсутствие интернета', 'Категория неопределена', 'Приветствие']
+    category_connection = db_connextion()
+    cur_category = category_connection.cursor(buffered=True)
+    cur_category.execute('select category_name from category')
+    result = cur_category.fetchall()
+    category_connection.close()
+
+    catergory_list = []
+
+    for category_name in result:
+        catergory_list.append(category_name[0])
+    
+    category_text = ', '.join(catergory_list)
+
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
@@ -209,13 +208,15 @@ def category(mes):
     date = date - timedelta(hours=1)
     dt = date.strftime('%Y-%m-%d %H:%M:%S')
 
-    prompt = '''Определи категорию обращения абонента по контексту его сообщения
-            и укажи только её в ответе. Доступные категории: Личный кабинет,
-            Расторжение договора, Видеонаблюдение, Переезд, Подключение, Проверка скорости,
-            Оборудование, Оплата, Тарифы, Телевидение, Баланс, Домофония,
-            Повышение стоимости, Сервисный выезд, Отсутствие интернета, Приветствие, Категория неопределена.
-            Не работает тв это Телевидение. Не работает интернет это Отсутствие интернета, все вопросы, абсолютно, по балансу и оплате - это баланс и оплата. И так далее.
-            Сообщение:  '''
+    prompt_name = 'first_category'
+    prompt_scheme = mes['prompt']
+
+    with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
+        prompt_data = json.loads(json.loads(res.text))
+
+    template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
+
+    prompt = template.format(category_text=category_text)
     
     db_connection = db_connextion()
 
@@ -236,7 +237,7 @@ def category(mes):
 
     db_con = db_connextion()
     cur = db_con.cursor(buffered=True)
-    if ans in categoryes:
+    if ans in catergory_list:
         cur.execute(f'update ChatParameters set category = "{ans}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
         db_con.commit()
         db_con.close()
@@ -258,77 +259,79 @@ def prompt(mes):
     cur.execute(f'select category from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
     row = cur.fetchone()
     db_connection.close()
-    
+
     category = row[0]
 
-    if category in ['Баланс', 'Отсутствие интернета', 'Оплата', 'Аварии', 'Повышение стоимости', 'Тарифы']:
-        if category == 'Баланс' or category == 'Оплата':
-            schema = 'aibot_balance'
-        elif category == 'Отсутствие интернета' or category == 'Аварии':
-            schema = 'aibot_notinet'
-        elif category == 'Повышение стоимости':
-            schema = 'aibot_indexing'
-        elif category == 'Тарифы':
-            schema = 'aibot_tariffs'
+    category_connecton = db_connextion()
+    cur_category = category_connecton.cursor(buffered=True)
+    cur_category.execute(f'select scheme, is_prompt from category where category_name = "{category}"')
+    row_category = cur_category.fetchone()
+    category_connecton.close()
 
-        lzlzlz = text_prompt.Prompt(login, schema)
-        text = lzlzlz.start('start', '')
-        text_with_params = str(extract_words(text, login)).replace('"', '')
-        text_with_params = text_with_params.replace("'", "")
-        print('*************************************************************************')
-        print(text_with_params)
-        print('*************************************************************************')
+    if row_category[1] == 1:
+        schema = row_category[0]
+
+        prompt = text_prompt.Prompt(login, schema)
+        text = prompt.start('start', '')
+
         db_connection = db_connextion()
         prompt_cur = db_connection.cursor(buffered=True)
-        prompt_cur.execute(f'update ChatParameters set prompt = "{text_with_params}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(f'update ChatParameters set prompt = "{text_with_params}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        db_connection.commit()
-        db_connection.close()
+
+        if text == 'to_disp':
+            prompt_cur.execute(f'update ChatParameters set prompt = "{text}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
+            db_connection.commit()
+            db_connection.close()   
+
+        else:
+            text_with_params = str(extract_words(text, login)).replace('"', '')
+            text_with_params = text_with_params.replace("'", "")
+            
+            prompt_cur.execute(f'update ChatParameters set prompt = "{text_with_params}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
+            db_connection.commit()
+            db_connection.close()
+            
+
 
 
 def all_mes_category(mes):
-    categoryes = ['Личный кабинет', 'Расторжение договора', 'Видеонаблюдение', 
-            'Переезд', 'Подключение', 'Проверка скорости', 'Оборудование', 'Оплата', 
-            'Тарифы', 'Телевидение', 'Баланс', 'Домофония', 'Повышение стоимости', 
-            'Сервисный выезд', 'Отсутствие интернета', 'Категория неопределена', 'Приветствие']
+    category_connection = db_connextion()
+    cur_category = category_connection.cursor(buffered=True)
+    cur_category.execute('select category_name from category')
+    result = cur_category.fetchall()
+    category_connection.close()
+
+    catergory_list = []
+
+    for category_name in result:
+        catergory_list.append(category_name[0])
+    
+    category_text = ', '.join(catergory_list)
+
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
     text = mes['text']
     chatBot = mes['chatBot']
     messageId = mes['messageId']
-
-    date = mes['dt']
-    date = date - timedelta(hours=2)
-    print(date)
-    dt = date.strftime('%Y-%m-%d %H:%M:%S')
+    
     db_connection = db_connextion()
     cur = db_connection.cursor(buffered=True)
     cur.execute(f'''select story, category from ChatParameters where id_int = {id_int}
                     and id_str = "{id_str}"  and chat_bot = "{chatBot}"''')
     row = cur.fetchone()
-    print(f'''select story, category from ChatParameters where id_int = {id_int}
-                    and id_str = "{id_str}"  and chat_bot = "{chatBot}"''')
-    print('\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-    print(row)
-    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n')
     db_connection.close()
     story = row[0]
     category = row[1]
+    prompt_name = 'all_mes_category'
+    prompt_scheme = mes['prompt']
 
-    prompt = f'''
-            Классифицируй категорию сообщения: "{text}" Предположительная категория: {category}?
-            Предыдущие сообщения для понимания контекста: {story}
-            Доступные категории: Личный кабинет, Расторжение договора, Видеонаблюдение, Переезд, Подключение, Проверка скорости,
-            Оборудование, Оплата, Тарифы, Телевидение, Баланс, Домофония,
-            Повышение стоимости, Сервисный выезд, Отсутствие интернета, Приветствие, Категория неопределена.
-            Напиши только категорию, так же, как она написана здесь, соблюдая регистры и все прочее.
-            Не работает тв это Телевидение. Не работает интернет это Отсутствие интернета, все вопросы, абсолютно, по балансу и оплате - это Баланс или Оплата. И так далее.
-            '''
-    print(prompt)
+    with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
+        prompt_data = json.loads(json.loads(res.text))
+
+    template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
+
+    prompt = template.format(text=text, category=category, story=story, category_text=category_text)
+    
     ans = mistral('', prompt)
-    print(ans)
 
     db_connection = db_connextion()
     cursor_story = db_connection.cursor(buffered=True)
@@ -336,7 +339,7 @@ def all_mes_category(mes):
     db_connection.commit()
     db_connection.close()
 
-    if ans in categoryes:
+    if ans in catergory_list:
         db_connection = db_connextion()
         cursor = db_connection.cursor(buffered=True)
         cursor.execute(f'update ChatParameters set category = "{ans}" where id_int = {id_int} and id_str = "{id_str}"  and chat_bot = "{chatBot}"')
@@ -410,7 +413,6 @@ def anser(mes):
 
     date = mes['dt']
     date = date - timedelta(hours=2)
-    print(date)
     dt = date.strftime('%Y-%m-%d %H:%M:%S')
 
     db_connection = db_connextion()
@@ -421,36 +423,46 @@ def anser(mes):
     
     promt = f'{str(row[0])}, {str(row[1])}'
     category = row[2]
-    if category in ['Баланс', 'Отсутствие интернета', 'Оплата', 'Аварии', 'Повышение стоимости', 'Тарифы'] and row[0] is not None:
-        ans = mistral('', promt)
-        if 'испетчер' in ans:
-            ans = 'Передать диспетчеру'
-        
 
-        ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '')
+    category_connecton = db_connextion()
+    cur_category = category_connecton.cursor(buffered=True)
+    cur_category.execute(f'select is_prompt, is_active from category where category_name = "{category}"')
+    row_category = cur_category.fetchone()
+    category_connecton.close()
+    is_prompt = row_category[0]
+    is_active = row_category[1]
+
+    if str(row[0]) == 'to_disp':
+        ans = 'Передать диспетчеру'
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
-        print(ans)
-    elif category in ['Баланс', 'Отсутствие интернета', 'Оплата', 'Аварии', 'Повышение стоимости', 'Тарифы'] and row[0] is None:
-        prompt(mes)
-        db_connection = db_connextion()
-        cur = db_connection.cursor(buffered=True)
-        cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}" and chat_bot = "{chatBot}"')
-        row = cur.fetchone()
-        db_connection.close()   
-        promt_new = f'{str(row[0])}, {str(row[1])}'
-        ans = mistral('', promt_new)
-        if 'испетчер' in ans:
-            ans = 'Передать диспетчеру'
-        ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '').replace('Ты: ', '')
-        get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
-        print(ans) 
-    elif category not in ['Баланс', 'Отсутствие интернета', 'Оплата', 'Аварии', 'Повышение стоимости', 'Тарифы', 'Приветствие', 'Категория неопределена']:    
-        ans = 'Передать диспетчеру' 
-        get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
-        print(ans) 
-    elif category in ['Приветствие', 'Категория неопределена']:
-        ans = non_category(mes)
-        get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+
     else:
-        print(prompt)
-        print(category)
+        if is_prompt == 1 and is_active == 1 and row[0] is not None:
+            ans = mistral('', promt)
+            if 'испетчер' in ans:
+                ans = 'Передать диспетчеру'
+            
+            ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '')
+            get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+
+        elif is_prompt == 1 and is_active == 1 and row[0] is None:
+            prompt(mes)
+            db_connection = db_connextion()
+            cur = db_connection.cursor(buffered=True)
+            cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}" and chat_bot = "{chatBot}"')
+            row = cur.fetchone()
+            db_connection.close()   
+            promt_new = f'{str(row[0])}, {str(row[1])}'
+            ans = mistral('', promt_new)
+            if 'испетчер' in ans:
+                ans = 'Передать диспетчеру'
+            ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '').replace('Ты: ', '')
+            get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+
+        elif is_prompt == 0 and is_active == 0:    
+            ans = 'Передать диспетчеру' 
+            get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+
+        elif is_prompt == 0 and is_active == 1:
+            ans = non_category(mes)
+            get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
