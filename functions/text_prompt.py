@@ -9,16 +9,16 @@ class Prompt:
         with requests.get(f'{REDIS}login:{login}') as response:
             self.data = json.loads(json.loads(response.text))
 
-        with requests.get(f'{REDIS}scheme:{schema}') as response:
+        with requests.get(f'{REDIS}{schema}') as response:
             self.scheme = json.loads(json.loads(response.text))
 
-        with requests.get('http://192.168.111.61/UNF_FULL_WS/hs/Grafana/anydata?query=%D0%9F%D1%80%D0%BE%D0%BC%D1%82%D1%8B') as file:
-            text = json.loads(file.text)
+        with requests.get(f'{REDIS}scheme:prompt') as file:
+            text = json.loads(json.loads(file.text))
             text_dict = {}
             for value in text:
                 name = value.get('name')
                 template = value.get('template')
-                text_dict[name] = template  # Исправлено: добавляем шаблоны по имени
+                text_dict[name] = template 
 
         self.prompt_text = text_dict
 
@@ -39,13 +39,17 @@ class Prompt:
             return prompt_functions.isGpon(self.login)
         elif key == 'isDiscount':
             return prompt_functions.isDiscount(self.login)
+        elif key == 'isNotPayment':
+            return prompt_functions.isNotPayment(self.login)
+        elif key == 'IsPauseAndPayment':
+            return prompt_functions.IsPauseAndPayment(self.login)
         else:
             print(f'Function {key} not found')
         return False
 
     def start(self, key, text):
         if not key or key == 'finish':
-            return text  # Возвращаем результат
+            return text 
 
         if key not in self.scheme:
             return text
@@ -63,6 +67,9 @@ class Prompt:
                 return self.start(yes, text)
             else:
                 return self.start(no, text)
+            
+        elif todo == 'getDisp':
+            return self.start('finish', 'to_disp')
 
         else:
             next_step = self.scheme[key]['next']
