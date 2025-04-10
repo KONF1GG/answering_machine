@@ -120,8 +120,9 @@ def find_login(mes):
     example = data[0]['address'] + ', ' + data[1]['address'] + ', ' + data[2]['address']
 
     prompt_name = '"address_identification"'
+    prompt_scheme = mes['prompt']
 
-    with requests.get('https://ws.freedom1.ru/redis/scheme:prompt') as res:
+    with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
