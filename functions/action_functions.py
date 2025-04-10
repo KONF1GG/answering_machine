@@ -381,6 +381,15 @@ def non_category(mes):
 
                 return 'Какой у вас вопрос'
 
+            else:
+                db_connection = db_connextion()
+                cur_new_step = db_connection.cursor()
+                cur_new_step.execute(f'update ChatParameters set step = "disp" where id_str = "{id_str}" and id_int = {id_int}  and chat_bot = "{chatBot}"')
+                db_connection.commit()
+                db_connection.close()
+
+                return 'Передать диспетчеру'
+
         else:
             db_connection = db_connextion()
             cur_new_step = db_connection.cursor()
