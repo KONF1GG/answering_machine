@@ -271,7 +271,7 @@ def prompt(mes):
     if row_category[1] == 1:
         schema = row_category[0]
 
-        prompt = text_prompt.Prompt(login, schema)
+        prompt = text_prompt.Prompt(login, schema, mes['text'])
         text = prompt.start('start', '')
 
         db_connection = db_connextion()

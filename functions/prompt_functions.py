@@ -4,6 +4,17 @@ from datetime import datetime
 
 REDIS = 'https://ws.freedom1.ru/redis/'
 
+
+
+#запрос в векторную базу
+def getVector(text, mes):
+    with requests.get(f'http://192.168.111.151:8080/v1/promt?query={mes}') as response:
+        data = json.loads(response.text)
+    text += data[0]['template']
+    
+    return text
+
+
 # Проверка на наличие абонплаты
 def isAvans(login):
     with requests.get(f'{REDIS}login:{login}') as response:
@@ -142,3 +153,31 @@ def IsPauseAndPayment(login):
     if today < deactivation_date and not next_payment:
         return True
     return False
+
+#Проверка есть ли камера у абонента
+def isCamera(login):
+    with requests.get(f'{REDIS}login:{login}') as response:
+        data = json.loads(json.loads(response.text))
+
+    services = data['services']
+
+    for service in services:
+        if 'Видеонаблюдение' in service['line']:
+            return True
+    return False
+
+
+#Проверка на финансовую блокировку камеры
+def isBlockedCamera(login):
+    with requests.get(f'{REDIS}login:{login}') as response:
+        data = json.loads(json.loads(response.text))
+
+    services = data['services']
+
+    for service in services:
+        if 'Видеонаблюдение' in service['line']:
+            if service['status'] == 'Активный':
+                return False
+            return True
+        
+    return True

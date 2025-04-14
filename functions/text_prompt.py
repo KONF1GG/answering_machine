@@ -5,24 +5,26 @@ from functions import prompt_functions
 REDIS = 'https://ws.freedom1.ru/redis/'
 
 class Prompt:
-    def __init__(self, login, schema):
+    def __init__(self, login, schema, mes):
         with requests.get(f'{REDIS}login:{login}') as response:
             self.data = json.loads(json.loads(response.text))
 
         with requests.get(f'{REDIS}{schema}') as response:
             self.scheme = json.loads(json.loads(response.text))
 
-        with requests.get(f'{REDIS}scheme:prompt') as file:
+        with requests.get(f'{REDIS}scheme:test_prompt') as file:
             text = json.loads(json.loads(file.text))
             text_dict = {}
             for value in text:
                 name = value.get('name')
                 template = value.get('template')
-                text_dict[name] = template 
+                text_dict[name] = template  # Исправлено: добавляем шаблоны по имени
 
         self.prompt_text = text_dict
 
         self.login = login
+
+        self.mes = mes
 
     def condition(self, key):
         if key == 'isAvans':
@@ -43,13 +45,23 @@ class Prompt:
             return prompt_functions.isNotPayment(self.login)
         elif key == 'IsPauseAndPayment':
             return prompt_functions.IsPauseAndPayment(self.login)
+        elif key == 'isVisitScheduled':
+            return prompt_functions.isVisitScheduled(self.login)
+        elif key == 'isFutureVisit':
+            return prompt_functions.isFutureVisit(self.login)
+        elif key == 'isServise':
+            return prompt_functions.isServise(self.login)
+        elif key == 'isCamera':
+            return prompt_functions.isCamera(self.login)
+        elif key == 'isBlockedCamera':
+            return prompt_functions.isBlockedCamera(self.login)
         else:
             print(f'Function {key} not found')
         return False
 
     def start(self, key, text):
         if not key or key == 'finish':
-            return text 
+            return text  # Возвращаем результат
 
         if key not in self.scheme:
             return text
@@ -70,6 +82,10 @@ class Prompt:
             
         elif todo == 'getDisp':
             return self.start('finish', 'to_disp')
+        elif todo == 'getVector':
+            next_step = self.scheme[key]['next']
+            text_vector = prompt_functions.getVector(text, self.mes)
+            return self.start(next_step, text_vector)
 
         else:
             next_step = self.scheme[key]['next']
