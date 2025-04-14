@@ -333,6 +333,9 @@ def all_mes_category(mes):
     
     ans = mistral('', prompt)
 
+    if ans == 'Категория неопределена':
+        ans = category
+
     db_connection = db_connextion()
     cursor_story = db_connection.cursor(buffered=True)
     cursor_story.execute(f'update ChatStory set category = "{ans}" where id_int = {id_int} and id_str = "{id_str}" and messageId = "{messageId}"')
@@ -473,5 +476,8 @@ def anser(mes):
             get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
 
         elif is_prompt == 0 and is_active == 1:
-            ans = non_category(mes)
+            if category == 'Благодарность':
+                ans = 'Рад помочь!'
+            else:
+                ans = non_category(mes)
             get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
