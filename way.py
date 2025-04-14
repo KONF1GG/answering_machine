@@ -7,7 +7,7 @@ import time
 import functions.action_functions as af
 
 
-zapreshenka = ['start', 'stop', 'chat_closed']
+zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop', '/chat_closed']
 
 def login_application(mes):
     id_str = mes['id_str_sql']
