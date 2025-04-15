@@ -6,6 +6,7 @@ from functions.dadata import mistral
 import functions.parametrs as params
 import functions.text_prompt as text_prompt
 
+import pytz
 
 def extract_words(text, login):
     import re
@@ -417,6 +418,8 @@ def non_category(mes):
 
 
 def anser(mes):
+    tz = pytz.timezone('Asia/Yekaterinburg')
+
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
@@ -446,6 +449,15 @@ def anser(mes):
 
     if str(row[0]) == 'to_disp':
         ans = 'Передать диспетчеру'
+
+        connect = db_connextion()
+        cur_ans = connect.cursor(buffered=True)
+        cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
+                            values("{id_str}", {id_int}, "{login}", "{category}", "{promt}", "{messageId}", 
+                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+        connect.commit()
+        connect.close()
+
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
 
     else:
@@ -455,6 +467,15 @@ def anser(mes):
                 ans = 'Передать диспетчеру'
             
             ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '')
+
+            connect = db_connextion()
+            cur_ans = connect.cursor(buffered=True)
+            cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
+                            values("{id_str}", {id_int}, "{login}", "{category}", "{promt}", "{messageId}", 
+                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+            connect.commit()
+            connect.close()
+
             get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
 
         elif is_prompt == 1 and is_active == 1 and row[0] is None:
@@ -469,6 +490,15 @@ def anser(mes):
             if 'испетчер' in ans:
                 ans = 'Передать диспетчеру'
             ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '').replace('Ты: ', '')
+
+            connect = db_connextion()
+            cur_ans = connect.cursor(buffered=True)
+            cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
+                            values("{id_str}", {id_int}, "{login}", "{category}", "{promt_new}", "{messageId}", 
+                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+            connect.commit()
+            connect.close()
+
             get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
 
         elif is_prompt == 0 and is_active == 0:    
