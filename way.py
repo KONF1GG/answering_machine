@@ -2,12 +2,13 @@ from datetime import timedelta
 import requests
 import json
 from connections import db_connextion
-from functions.dadata import find_login, mistral, mistral_large
+from functions.dadata import find_login
+from functions.llm import gpt
 import time
 import functions.action_functions as af
 
 
-zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop', '/chat_closed']
+zapreshenka = ['start', 'stop', 'chat_closed']
 
 def login_application(mes):
     id_str = mes['id_str_sql']
@@ -47,9 +48,7 @@ def is_login(mes):
         return login_application(mes)
     return False
 
-
 def is_abon_info_mes(mes):
-    text = mes['text']
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
@@ -60,8 +59,11 @@ def is_abon_info_mes(mes):
         prompt_data = json.loads(json.loads(res.text))
 
     prompt = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '')
-    
-    ans = mistral_large(text, prompt)
+    story = af.all_mes_on_day(mes, sql=False)
+    promt_mes = {"role": "system", "content": prompt}
+    story.insert(0, promt_mes)
+
+    ans = gpt(story)
     if ans == 'Да':
         time.sleep(1)
         return find_login(mes)
@@ -80,9 +82,9 @@ def is_abon_info_mes(mes):
             db_connection.commit()
             db_connection.close()
             return True
-    return False 
+    return False
 
-
+    
 def is_physic(mes):
     id_int = mes['id_int']
     id_str = mes['id_str_sql']

@@ -343,3 +343,51 @@ class Abonent:
             return 'нет информации'
 
         
+    def servise_date(self):
+        with requests.get(f'{REDIS}loginplan:{self.login}') as response:
+            data = json.loads(json.loads(response.text))
+
+        start = int(data['start'])
+
+        return datetime.fromtimestamp(start).date()
+    
+
+    def camera_status(self):
+        with requests.get(f'{REDIS}login:{self.login}') as response:
+            data = json.loads(json.loads(response.text))
+
+        services = data['services']
+
+        for service in services:
+            if 'Видеонаблюдение' in service['line']:
+                name = service['serviceName']
+                status = service['status']
+                count = service['count']
+
+                return f'Услуга {name}, статус: {status}, количество камер: {count}.'
+        return 'Услуга видеонаблюдения не подключена'
+
+
+    def contype(self):
+        with requests.get(f'{REDIS}login:{self.login}') as get_login_text:
+            get_login = json.loads(json.loads(get_login_text.text))
+            
+        contype = ''
+        if 'servicecats' in get_login:
+            if 'contype' in get_login['servicecats']['internet']:
+                contype = get_login['servicecats']['internet']['contype']
+
+        houseId = get_login['houseId']
+
+        with requests.get(f'{REDIS}adds:{houseId}') as get_house_text:
+            get_house = json.loads(json.loads(get_house_text.text))
+
+        if contype == '':
+            contype = get_house['conn_type'][0]
+        pon = ['gpon', 'hpon', 'lpon']
+        for type in pon:
+            if type in contype:
+                return 'Оптическая технология подключения.'
+        if contype == 'wireles':
+            return 'Проводная технология подключения.'
+        return 'Беспроводная технология подключения.'

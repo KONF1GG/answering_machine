@@ -2,17 +2,56 @@ from datetime import timedelta, datetime
 import requests
 import json
 from connections import db_connextion
-from functions.dadata import mistral
+from functions.llm import gpt
 import functions.parametrs as params
 import functions.text_prompt as text_prompt
+import time
 
-import pytz
+def all_mes_on_day(mes, sql=True):
+    id_int = mes['id_int']
+    id_str = mes['id_str_sql']
+    chatBot = mes['chatBot']
+    date = mes['dt']
+    date = date - timedelta(hours=2)
+    dt = date.strftime('%Y-%m-%d %H:%M:%S')
+
+    db_connection = db_connextion()
+    cur = db_connection.cursor(buffered=True)
+    cur.execute(f'select mes, empl, dt from ChatStory where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}"  and chat_bot = "{chatBot}" order by dt')
+    result = cur.fetchall()
+    db_connection.close()
+    
+    text_chat = []
+    for row in result:
+        mesage = row[0]
+        empl = row[1]
+
+        if mesage == mes['text'] or mesage == 'Здравствуйте! Пожалуйста, уточните ваш адрес (включая населенный пункт) или номер договора.':
+            continue
+        elif empl == 1:
+            text_chat.append({"role": "assistant", "content": mesage})
+        elif empl == 0:
+            text_chat.append({"role": "user", "content": mesage})
+        
+
+    last_mes = mes['text']
+    text_chat.append({"role": "user", "content": last_mes})
+    if not sql:
+        return text_chat
+    sql_text = str(text_chat).replace('"', '\"')
+
+    if sql:
+        db_connection = db_connextion()
+        story_cur = db_connection.cursor(buffered=True)
+        story_cur.execute(f'update ChatParameters set story = "{sql_text}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
+        db_connection.commit()
+        db_connection.close()
+
 
 def extract_words(text, login):
     import re
     words =  re.findall(r'<(.*?)>', text)
 
-    #print(params)
     abon = params.Abonent(login)
     for word in words:
         value = eval(f'abon.{word}()')
@@ -20,7 +59,6 @@ def extract_words(text, login):
             text = text.replace(f'<{word}>', str(value))
         except:
             text = text.replace(f'<{word}>', 'Неопознано')
-    #print(text)
     return(text)
 
 
@@ -63,7 +101,7 @@ def get_to_1c(id, id_int, chatBot, messageId, ans, login, category, date):
                     "SendFromBot": send,
                     "login": login,
                     "category": category,
-                    "ContactUpdateData":"аа"}  
+                    "ContactUpdateData":"аа"}   
     
 
     try:
@@ -104,7 +142,6 @@ def find_login(mes):
             db_connection.close()
         
         elif row[0] == 'login_search_mes_sent':
-            story = row[2]
             prompt_name = 'support_identification'
             prompt_scheme = mes['prompt']
 
@@ -112,9 +149,11 @@ def find_login(mes):
                 prompt_data = json.loads(json.loads(res.text))
 
             template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
-            promt = template.format(story=story)
+            story = all_mes_on_day(mes, sql=False)
+            promt_mes = {"role": "system", "content": template}
+            story.insert(0, promt_mes)
 
-            ans = mistral(promt, mes['text'])
+            ans = gpt(story)
             get_to_1c(id_str, id_int, chatBot, messageId, ans, '', category, mes['dt'])
 
             db_connection = db_connextion()
@@ -145,46 +184,7 @@ def get_login(mes):
     elif row[1] != '':
         mes_dict['login'] = row[1]
     return mes_dict
-
-
-def all_mes_on_day(mes):
-    id_int = mes['id_int']
-    id_str = mes['id_str_sql']
-    chatBot = mes['chatBot']
-    date = mes['dt']
-    date = date - timedelta(hours=2)
-    dt = date.strftime('%Y-%m-%d %H:%M:%S')
-
-    db_connection = db_connextion()
-    cur = db_connection.cursor(buffered=True)
-    cur.execute(f'select mes, empl, dt from ChatStory where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}"  and chat_bot = "{chatBot}" order by dt')
-    result = cur.fetchall()
-    db_connection.close()
-    
-    text_chat = '\n\nИстория диалога: '
-    for row in result:
-        mesage = row[0]
-        empl = row[1]
-
-        if mesage == mes['text']:
-            continue
-        elif empl == 1:
-            mesage = f'\nТы: {mesage}'
-        elif empl == 0:
-            mesage = f'\nАбонент: {mesage}'
-        
-        text_chat += mesage + ' '
-
-    last_mes = mes['text']
-    text_chat += f'\n Сообщение абонента, на которое ты должен ответить: {last_mes}'
-    text_chat = text_chat.replace('"', '').replace("'", '').replace('Здравствуйте! Пожалуйста, уточните ваш адрес (включая населенный пункт) или номер договора.', '')
-
-    db_connection = db_connextion()
-    story_cur = db_connection.cursor(buffered=True)
-    story_cur.execute(f'update ChatParameters set story = "{text_chat}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-    db_connection.commit()
-    db_connection.close()
-    
+   
 
 def category(mes):
     category_connection = db_connextion()
@@ -218,6 +218,9 @@ def category(mes):
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
 
     prompt = template.format(category_text=category_text)
+    story = all_mes_on_day(mes, sql=False)
+    promt_mes = {"role": "system", "content": prompt}
+    story.insert(0, promt_mes)
     
     db_connection = db_connextion()
 
@@ -228,7 +231,7 @@ def category(mes):
     for row in result:
         text += str(row[0]) + ' '
 
-    ans = mistral(text, prompt)
+    ans = gpt(story)
 
 
     cursor_story = db_connection.cursor(buffered=True)
@@ -268,7 +271,7 @@ def prompt(mes):
     cur_category.execute(f'select scheme, is_prompt from category where category_name = "{category}"')
     row_category = cur_category.fetchone()
     category_connecton.close()
-
+    
     if row_category[1] == 1:
         schema = row_category[0]
 
@@ -310,18 +313,18 @@ def all_mes_category(mes):
 
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
-    text = mes['text']
     chatBot = mes['chatBot']
     messageId = mes['messageId']
-    
+
+    date = mes['dt']
+    date = date - timedelta(hours=2)
     db_connection = db_connextion()
     cur = db_connection.cursor(buffered=True)
-    cur.execute(f'''select story, category from ChatParameters where id_int = {id_int}
+    cur.execute(f'''select category from ChatParameters where id_int = {id_int}
                     and id_str = "{id_str}"  and chat_bot = "{chatBot}"''')
     row = cur.fetchone()
     db_connection.close()
-    story = row[0]
-    category = row[1]
+    category = row[0]
     prompt_name = 'all_mes_category'
     prompt_scheme = mes['prompt']
 
@@ -330,10 +333,14 @@ def all_mes_category(mes):
 
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
 
-    prompt = template.format(text=text, category=category, story=story, category_text=category_text)
+    prompt = template.format(category=category, category_text=category_text)
+    story = []
+    story = all_mes_on_day(mes, sql=False)
+    promt_mes = {"role": "system", "content": prompt}
+    story.insert(0, promt_mes)
     
-    ans = mistral('', prompt)
-
+    ans = gpt(story)
+    
     if ans == 'Категория неопределена':
         ans = category
 
@@ -385,15 +392,6 @@ def non_category(mes):
 
                 return 'Какой у вас вопрос'
 
-            else:
-                db_connection = db_connextion()
-                cur_new_step = db_connection.cursor()
-                cur_new_step.execute(f'update ChatParameters set step = "disp" where id_str = "{id_str}" and id_int = {id_int}  and chat_bot = "{chatBot}"')
-                db_connection.commit()
-                db_connection.close()
-
-                return 'Передать диспетчеру'
-
         else:
             db_connection = db_connextion()
             cur_new_step = db_connection.cursor()
@@ -418,7 +416,6 @@ def non_category(mes):
 
 
 def anser(mes):
-    tz = pytz.timezone('Asia/Yekaterinburg')
 
     id_int = mes['id_int']
     id_str = mes['id_str_sql']
@@ -426,8 +423,8 @@ def anser(mes):
     messageId = mes['messageId']
     login = mes['login']
 
-    date = mes['dt']
-    date = date - timedelta(hours=2)
+    date_mes = mes['dt']
+    date = date_mes - timedelta(hours=2)
     dt = date.strftime('%Y-%m-%d %H:%M:%S')
 
     db_connection = db_connextion()
@@ -435,8 +432,14 @@ def anser(mes):
     cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}" and chat_bot = "{chatBot}"')
     row = cur.fetchone()
     db_connection.close()
-    
-    promt = f'{str(row[0])}, {str(row[1])}'
+
+    promt_mes = {"role": "system", "content": row[0]}
+    promt = row[0]
+
+    message = all_mes_on_day(mes, False)
+    message.insert(0, promt_mes)
+
+
     category = row[2]
 
     category_connecton = db_connextion()
@@ -454,7 +457,7 @@ def anser(mes):
         cur_ans = connect.cursor(buffered=True)
         cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
                             values("{id_str}", {id_int}, "{login}", "{category}", "{promt}", "{messageId}", 
-                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+                            "{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
         connect.commit()
         connect.close()
 
@@ -462,7 +465,7 @@ def anser(mes):
 
     else:
         if is_prompt == 1 and is_active == 1 and row[0] is not None:
-            ans = mistral('', promt)
+            ans = gpt(message)
             if 'испетчер' in ans:
                 ans = 'Передать диспетчеру'
             
@@ -472,7 +475,7 @@ def anser(mes):
             cur_ans = connect.cursor(buffered=True)
             cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
                             values("{id_str}", {id_int}, "{login}", "{category}", "{promt}", "{messageId}", 
-                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+                            "{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
             connect.commit()
             connect.close()
 
@@ -485,8 +488,11 @@ def anser(mes):
             cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}" and dt > "{dt}" and chat_bot = "{chatBot}"')
             row = cur.fetchone()
             db_connection.close()   
-            promt_new = f'{str(row[0])}, {str(row[1])}'
-            ans = mistral('', promt_new)
+            promt_new_mes = {"role": "system", "content": row[0]}
+            promt_new = row[0]
+            message[0] = promt_new_mes
+            ans = gpt(message)
+
             if 'испетчер' in ans:
                 ans = 'Передать диспетчеру'
             ans = ans.replace('Здравствуйте! ', '').replace('Здравствуйте. ', '').replace('Здравствуйте, ', '').replace('Ты: ', '')
@@ -495,7 +501,7 @@ def anser(mes):
             cur_ans = connect.cursor(buffered=True)
             cur_ans.execute(f'''insert into ChatCategory (id_str, id_int, login, category, prompt, messageId, dt, mes) 
                             values("{id_str}", {id_int}, "{login}", "{category}", "{promt_new}", "{messageId}", 
-                            "{datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
+                            "{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "{ans}")''')
             connect.commit()
             connect.close()
 
@@ -503,9 +509,11 @@ def anser(mes):
 
         elif is_prompt == 0 and is_active == 0:    
             ans = 'Передать диспетчеру' 
+
             get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
 
         elif is_prompt == 0 and is_active == 1:
+
             if category == 'Благодарность':
                 ans = 'Рад помочь!'
             else:

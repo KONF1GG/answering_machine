@@ -1,79 +1,9 @@
 import json
 import requests
-from config import API_KEY, DADATA_TOKEN
+from config import DADATA_TOKEN
 from connections import db_connextion
+from functions.llm import gpt
 
-def mistral(text, prompt):
-    import threading
-    import time
-    from mistralai import Mistral
-
-    timeout = 60
-
-    """Вызывает API Mistral с таймаутом."""
-    client = Mistral(api_key=API_KEY)
-    model_name = "mistral-large-latest"
-
-    full_prompt = str(prompt) + str(text)
-
-    result = [None]  # Используем список, чтобы изменить его внутри потока
-
-    def call_api():
-        try:
-            response = client.chat.complete(
-                model=model_name,
-                messages=[{"role": "user", "content": full_prompt}]
-            )
-            result[0] = response.choices[0].message.content
-        except Exception as e:
-            print(f"Ошибка API: {e}")
-
-    thread = threading.Thread(target=call_api)
-    thread.start()
-    thread.join(timeout)  # Ждем `timeout` секунд
-
-    if thread.is_alive():
-        return None
-
-    time.sleep(1)
-    return str(result[0]) if result[0] else None
-
-
-def mistral_large(text, prompt):
-    import threading
-    import time
-    from mistralai import Mistral
-
-    timeout = 60
-
-    """Вызывает API Mistral с таймаутом."""
-    client = Mistral(api_key=API_KEY)
-    model_name = "mistral-large-latest"
-
-    full_prompt = str(prompt) + str(text)
-
-    result = [None]  # Используем список, чтобы изменить его внутри потока
-
-    def call_api():
-        try:
-            response = client.chat.complete(
-                model=model_name,
-                messages=[{"role": "user", "content": full_prompt}]
-            )
-            result[0] = response.choices[0].message.content
-        except Exception as e:
-            print(f"Ошибка API: {e}")
-
-    thread = threading.Thread(target=call_api)
-    thread.start()
-    thread.join(timeout)  # Ждем `timeout` секунд
-
-    if thread.is_alive():
-        print("Превышено время ожидания API, прерываем запрос")
-        return None
-
-    time.sleep(1)
-    return str(result[0]) if result[0] else None
 
 def select_login_based_on_service(mes, logins, login_data):
     """Выбирает логин на основе наличия сервиса в данных о логинах."""
@@ -81,12 +11,13 @@ def select_login_based_on_service(mes, logins, login_data):
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
 
-    first_login = logins[0]
-    second_login = logins[1] 
+    first_login = logins[0]  # Первый логин из списка
+    second_login = logins[1]  # Второй логин из списка
     
-    first_service = login_data[first_login]['service']
-    second_service = login_data[second_login]['service']
+    first_service = login_data[first_login]['service']  # Сервис для первого логина
+    second_service = login_data[second_login]['service']  # Сервис для второго логина
 
+    # Проверяем, у какого логина есть сервис, и возвращаем его
     if first_service is None and second_service is not None:
         login = second_login.split(':')[1]
         db_connection = db_connextion()
@@ -113,13 +44,14 @@ def find_login(mes):
     id_str = mes['id_str_sql']
     chatBot = mes['chatBot']
 
+
+    # Промпт для извлечения адреса из сообщения
     with requests.get(f'http://192.168.111.151:8080/v1/address?query={message}') as response:
         data = json.loads(response.text)
 
     d0 = data[0] 
     example = data[0]['address'] + ', ' + data[1]['address'] + ', ' + data[2]['address']
-
-    prompt_name = '"address_identification"'
+    prompt_name = 'address_identification'
     prompt_scheme = mes['prompt']
 
     with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
@@ -127,10 +59,22 @@ def find_login(mes):
 
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
 
-    address_extraction_prompt = template.format(example=example, message=message)
+    address_extraction_prompt = template.format(example=example)
 
-    extracted_address = mistral_large('', address_extraction_prompt)
+    db_connection = db_connextion()
+    cur = db_connection.cursor(buffered=True)
+    cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}"  and chat_bot = "{chatBot}"')
+    row = cur.fetchone()
+    db_connection.close()  
+    message = []
+    message = json.loads(row[1].replace("'", '"').replace('\"', '"')) 
+    promt_new_mes = {"role": "system", "content": address_extraction_prompt}
+    message.insert(0, promt_new_mes)
 
+    # Извлекаем адрес с помощью API Mistral
+    extracted_address = gpt(message)
+
+    # Настройка запроса к API Dadata
     dadata_url = 'http://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address'
     dadata_request_data = {"query": extracted_address}  # Тело запроса
     dadata_headers = {
@@ -139,25 +83,29 @@ def find_login(mes):
         "Authorization": f"Token {DADATA_TOKEN}"
     }
 
+    # Отправляем запрос в Dadata
     dadata_response = requests.post(dadata_url, headers=dadata_headers, data=json.dumps(dadata_request_data)).json()
 
+    # Обрабатываем ответ Dadata
     if dadata_response['suggestions']:
-        dadata_suggestion = dadata_response['suggestions'][0]
-        flat_number = dadata_suggestion['data']['flat']
+        dadata_suggestion = dadata_response['suggestions'][0]  # Берем первый результат
+        flat_number = dadata_suggestion['data']['flat']  # Извлекаем номер квартиры
 
+        # Получаем FIAS ID для дальнейших запросов
         fias_id = (
             dadata_suggestion['data']['house_fias_id'] or dadata_suggestion['data']['fias_id']
         ).replace('-', '%20')
 
+        # Запрашиваем данные о доме через кастомный API
         with requests.get(f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:adds.fias%20%27@fiasUUID:%27{fias_id}%27') as house_response:
             house_data = json.loads(house_response.text)
 
-
-
         if house_data:
-            house_id = list(house_data.keys())[0].split(':')[1]
+            house_id = list(house_data.keys())[0].split(':')[1]  # Извлекаем ID дома
         else:
             return False
+
+        # Запрашиваем список логинов, связанных с этим домом
         login_query_url = (
             f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:login%20%27@houseId:[{house_id}%20{house_id}]%27%20Limit%200%20500'
         )
@@ -168,12 +116,14 @@ def find_login(mes):
         if type(login_data) is dict:
             logins = list(login_data.keys())
 
+            # Сопоставляем логины с номером квартиры, если он указан
             if flat_number:
                 matching_logins = [
                     login for login in logins
                     if login_data[login]['flat'] == int(flat_number)
                 ]
 
+                # Логика обработки логинов с учетом их количества
                 if len(matching_logins) > 2:
                     return False
                 elif len(matching_logins) == 2:

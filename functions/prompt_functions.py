@@ -1,10 +1,8 @@
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 REDIS = 'https://ws.freedom1.ru/redis/'
-
-
 
 #запрос в векторную базу
 def getVector(text, mes):
@@ -14,7 +12,7 @@ def getVector(text, mes):
     
     return text
 
-
+    
 # Проверка на наличие абонплаты
 def isAvans(login):
     with requests.get(f'{REDIS}login:{login}') as response:
@@ -122,7 +120,6 @@ def isDiscount(login):
         return True
     return False
 
-
 def isNotPayment(login):
     with requests.get(f'{REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
@@ -154,7 +151,56 @@ def IsPauseAndPayment(login):
         return True
     return False
 
-#Проверка есть ли камера у абонента
+
+#Проверка на запланированный выезд
+def isVisitScheduled(login):
+    with requests.get(f'{REDIS}loginplan:{login}') as response:
+        data = json.loads(response.text)
+
+    if isinstance(data, bool):
+        return False
+
+    data_dict = json.loads(data)
+    start = int(data_dict['start'])
+
+    visit_date = datetime.fromtimestamp(start).date()
+    yesterday_date = (datetime.now() - timedelta(days=1)).date()
+
+    if visit_date < yesterday_date:
+        return False
+
+    return True
+
+
+#Проверка будущий или прошлый выезд
+def isFutureVisit(login):
+    with requests.get(f'{REDIS}loginplan:{login}') as response:
+        data = json.loads(json.loads(response.text))
+
+    start = int(data['start'])
+
+    visit_date = datetime.fromtimestamp(start).date()
+    today_date = datetime.now().date()
+
+    if visit_date < today_date:
+        return False
+    
+    return True
+
+
+#Проверка тип выезда
+def isServise(login):
+    with requests.get(f'{REDIS}loginplan:{login}') as response:
+        data = json.loads(json.loads(response.text))
+
+    type_visit = data['typeBP']
+
+    if type_visit == 'Подключение':
+        return False
+    
+    return True
+
+
 def isCamera(login):
     with requests.get(f'{REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
@@ -167,7 +213,6 @@ def isCamera(login):
     return False
 
 
-#Проверка на финансовую блокировку камеры
 def isBlockedCamera(login):
     with requests.get(f'{REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
