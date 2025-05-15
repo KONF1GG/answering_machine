@@ -1,13 +1,14 @@
-import requests
-import json
 from datetime import datetime
+import json
+
+import requests
 from dateutil.relativedelta import relativedelta
 
-REDIS = 'https://ws.freedom1.ru/redis/'
+from config import HTTP_1C, HPPT_REDIS
 
 class Abonent:
     def __init__(self, login):
-        with requests.get(f'{REDIS}login:{login}') as response:
+        with requests.get(f'{HPPT_REDIS}login:{login}') as response:
             self.data = json.loads(json.loads(response.text))
         
         self.login = login
@@ -49,7 +50,7 @@ class Abonent:
         
   
     def autopay_status(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=last_payment&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=last_payment&login={self.login}') as response:
             data = json.loads(response.text)
 
         try:
@@ -63,10 +64,10 @@ class Abonent:
         houseid = self.data.get('houseId', 'Неизвестно')
 
         try:
-            with requests.get(f'{REDIS}adds:{houseid}') as houseres:
+            with requests.get(f'{HPPT_REDIS}adds:{houseid}') as houseres:
                 house = json.loads(json.loads(houseres.text))
 
-            with requests.get(f'{REDIS}terrtar:{house["territoryId"]}') as territory:
+            with requests.get(f'{HPPT_REDIS}terrtar:{house["territoryId"]}') as territory:
                 ter = json.loads(json.loads(territory.text))
                 
             return str(ter.get('shutdownday', 'Неизвестно'))
@@ -82,13 +83,13 @@ class Abonent:
         addressCodes = self.data['addressCodes']
             
         if hostId != '':
-            with requests.get(f'{REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
+            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
                 fail_data = fai_host.text
             if fail_data != 'false':
                 return 'В данный момент наблюдается авария'
             
         for adress in addressCodes:
-            with requests.get(f'{REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
+            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
                 fai_data = fai_add.text
             if fai_data != 'false':
                 return 'В данный момент наблюдается авария'
@@ -112,7 +113,7 @@ class Abonent:
         addressCodes = self.data['addressCodes']
             
         if hostId != '':
-            with requests.get(f'{REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
+            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
                 fail_data = json.loads(fai_host.text)
             if fail_data != 'false':
                 key = next(iter(fail_data))
@@ -120,7 +121,7 @@ class Abonent:
                 return messages[message]
             
         for adress in addressCodes:
-            with requests.get(f'{REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
+            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
                 fai_data = fai_add.text
             if fai_data != 'false':
                 key = next(iter(fail_data))
@@ -136,7 +137,7 @@ class Abonent:
         uuid = self.data.get('UUID', 'Неизвестно')
         try:
             with requests.get(
-                f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Cabinet/getBalanceHistory?UUID={uuid}&start={mount_pred.strftime("%Y-%m")}-01T00:00:00&end={mount_last.strftime("%Y-%m")}-01T00:00:00'
+                f'{HTTP_1C}hs/Cabinet/getBalanceHistory?UUID={uuid}&start={mount_pred.strftime("%Y-%m")}-01T00:00:00&end={mount_last.strftime("%Y-%m")}-01T00:00:00'
             ) as pay_mounth:
                 pays = json.loads(pay_mounth.text)
             transactions = ''
@@ -149,7 +150,7 @@ class Abonent:
 
 
     def description(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
             data = json.loads(response.text)
             try:
                 return data[0]['description']
@@ -158,7 +159,7 @@ class Abonent:
 
     
     def sum_indexing(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
             data = json.loads(response.text)
             try:
                 return data[0]['sum']
@@ -167,7 +168,7 @@ class Abonent:
 
 
     def tariff_price(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
             data = json.loads(response.text)
             try:
                 return data[0]['price']
@@ -176,7 +177,7 @@ class Abonent:
 
 
     def payment_mounth(self):
-        url = "http://server1c.freedom1.ru/UNF_CRM_WS/hs/Cabinet/allServices"
+        url = f"{HTTP_1C}hs/Cabinet/allServices"
         msg = self.data.get('UUID', 'Неизвестно')
         try:
             data = {"UUID": msg}
@@ -195,7 +196,7 @@ class Abonent:
         
     
     def services_and_statuses(self):
-        url = "http://server1c.freedom1.ru/UNF_CRM_WS/hs/Cabinet/getAllServices"
+        url = f"{HTTP_1C}hs/Cabinet/getAllServices"
         msg = self.data.get('UUID', 'Неизвестно')
         try:
             data = {"UUID": msg}
@@ -215,7 +216,7 @@ class Abonent:
         
     
     def current_month_amount(self):
-        url = "http://server1c.freedom1.ru/UNF_CRM_WS/hs/Cabinet/allServices"
+        url = f"{HTTP_1C}hs/Cabinet/allServices"
         msg = self.data.get('UUID', 'Неизвестно')
         try:
             data = {"UUID": msg}
@@ -235,7 +236,7 @@ class Abonent:
         
     
     def mandatory_payments(self):
-        url = "http://server1c.freedom1.ru/UNF_CRM_WS/hs/Cabinet/allServices"
+        url = f"{HTTP_1C}hs/Cabinet/allServices"
         msg = self.data.get('UUID', 'Неизвестно')
         try:
             data = {"UUID": msg}
@@ -255,7 +256,7 @@ class Abonent:
 
 
     def installment_service(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={self.login}') as response:
             installments = json.loads(response.text)
 
         installment_text = ''
@@ -268,7 +269,7 @@ class Abonent:
 
 
     def available_services(self):
-        with requests.get(f'{REDIS}login:{self.login}') as get_login_text:
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
         
         contype = ''
@@ -278,7 +279,7 @@ class Abonent:
 
         houseId = get_login['houseId']
 
-        with requests.get(f'{REDIS}adds:{houseId}') as get_house_text:
+        with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
             get_house = json.loads(json.loads(get_house_text.text))
 
         territoryId = get_house['territoryId']
@@ -286,7 +287,7 @@ class Abonent:
         if contype == '':
             contype = get_house['conn_type'][0]
                 
-        with requests.get(f'{REDIS}terrtar:{territoryId}') as get_ter_text:
+        with requests.get(f'{HPPT_REDIS}terrtar:{territoryId}') as get_ter_text:
             get_ter = json.loads(json.loads(get_ter_text.text))
 
         tarif_text = ''
@@ -310,7 +311,7 @@ class Abonent:
 
 
     def discount(self):
-        with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=discount&login={self.login}') as response:
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=discount&login={self.login}') as response:
             discounts = json.loads(response.text)
 
         if discounts[0]:
@@ -330,7 +331,7 @@ class Abonent:
         
     
     def last_pay(self):
-        url = f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=last_payment&login={self.login}'
+        url = f'{HTTP_1C}hs/Grafana/anydata?query=last_payment&login={self.login}'
         with requests.get(url) as response:
                 da = json.loads(response.text)
         try:
@@ -344,7 +345,7 @@ class Abonent:
 
         
     def servise_date(self):
-        with requests.get(f'{REDIS}loginplan:{self.login}') as response:
+        with requests.get(f'{HPPT_REDIS}loginplan:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         start = int(data['start'])
@@ -353,7 +354,7 @@ class Abonent:
     
 
     def camera_status(self):
-        with requests.get(f'{REDIS}login:{self.login}') as response:
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         services = data['services']
@@ -369,7 +370,7 @@ class Abonent:
 
 
     def contype(self):
-        with requests.get(f'{REDIS}login:{self.login}') as get_login_text:
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
             
         contype = ''
@@ -379,7 +380,7 @@ class Abonent:
 
         houseId = get_login['houseId']
 
-        with requests.get(f'{REDIS}adds:{houseId}') as get_house_text:
+        with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
             get_house = json.loads(json.loads(get_house_text.text))
 
         if contype == '':
@@ -391,3 +392,40 @@ class Abonent:
         if contype == 'wireles':
             return 'Проводная технология подключения.'
         return 'Беспроводная технология подключения.'
+    
+    def intercom_status(self):
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+            data = json.loads(json.loads(response.text))
+
+        services = data['services']
+
+        for service in services:
+            if 'омофон' in service['line']:
+                name = service['serviceName']
+                status = service['status']
+
+                return f'Услуга {name}, статус: {status}.'
+        return 'Услуга домофонии не подключена'
+    
+    def terrytory_name(self):
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+            data = json.loads(json.loads(response.text))
+
+        territory = data['territory']
+        region = data['region']
+        return f'{region}, территория: {territory}'
+    
+
+    def tv_status(self):
+        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+            data = json.loads(json.loads(response.text))
+
+        services = data['services']
+
+        for service in services:
+            if '[FR] Фридом.Интерактивное IPTV"' in service['line']:
+                name = service['serviceName']
+                status = service['status']
+
+                return f'Услуга {name}, статус: {status}.'
+        return 'Услуга телевидения не подключена'

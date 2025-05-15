@@ -1,34 +1,34 @@
-import requests
-import json
-from connections import db_connextion
-from way import start
-import time
 from datetime import datetime, timedelta
+import time
+import json
 
-import pytz
+import requests
+
+from config import HPPT_REDIS
+from connections import execute_sql
+from core.router import router
 
 
 def get_message():
-    try:    
-        tz = pytz.timezone('Asia/Yekaterinburg')
-        
-        dt_5min = datetime.now(tz) - timedelta(minutes=5)
-        dt5min_for_select = dt_5min.strftime('%Y-%m-%d %H:%M:%S')
+    #"""
+    #Проверяет новые сообщения из БД за последние 5 минут, обновляет статус и 
+    #запускает диалоговый роутер.
+    #"""
 
-        db_connection = db_connextion()
-        cur = db_connection.cursor(buffered=True)
-        cur.execute(f'''
+    try:        
+        dt_5min = datetime.now() - timedelta(minutes=5)
+            
+        query = '''
                 select * from ChatStory join ChatParameters
                 on ChatStory.id_int = ChatParameters.id_int and ChatStory.id_str = ChatParameters.id_str
                 where ChatStory.ai_send = 0 and ChatStory.empl = 0 
-                and ChatStory.dt > "{dt5min_for_select}" limit 1
-            ''')
-        row = cur.fetchone()
-        db_connection.close()
+                and ChatStory.dt > %s limit 1
+            '''
+        params = (dt_5min,)
+        row = execute_sql('select_one', query, params)
             
         if row:
-            print(row)
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
             id_str = row[0]
             mes = row[1]
             dt = row[2]
@@ -38,26 +38,15 @@ def get_message():
             chatBot = row[21]
 
             if mes == 'Очистить' and chatBot == 'Чат бот:Jivo Chat, токен:':
-                db_connection = db_connextion()
-                upd = db_connection.cursor(buffered=True)
-                upd.execute(f'''
-                        delete from ChatStory where id_str = "{id_str}" and id_int = {id_int} and chat_bot = "{chatBot}"
-                    ''')
-                db_connection.commit()
+                del_query_story = 'delete from ChatStory where id_str = %s and id_int = %s and chat_bot = %s'
+                del_query_param = 'delete from ChatParameters where id_str = %s and id_int = %s and chat_bot = %s'
+                params = (id_str, id_int, chatBot)
 
-                upd1 = db_connection.cursor(buffered=True)
-                upd1.execute(f'''
-                        delete from ChatParameters where id_str = "{id_str}" and id_int = {id_int} and chat_bot = "{chatBot}";
-                    ''')
-                db_connection.commit()
-                
-                db_connection.close()
+                execute_sql('delete', del_query_story, params)
+                execute_sql('delete', del_query_param, params)
                 return
 
-
             mes_info = {
-
-        
                 'id_int': id_int,
                 'id_str_sql': id_str,
                 'id_str': id_str,
@@ -69,31 +58,25 @@ def get_message():
                 'prompt': 'scheme:prompt'
             }
 
-            db_connection = db_connextion()
-            upd = db_connection.cursor(buffered=True)
-            upd.execute(f'''
-                    update ChatStory set ai_send = 1, chat_bot = "{chatBot}" where messageId = "{messageId}"
-                ''')
-            db_connection.commit()
-            db_connection.close()
+            query = 'update ChatStory set ai_send = 1, chat_bot = %s where messageId = %s'
+            params = (chatBot, messageId)
+            execute_sql('update', query, params)
 
-            with requests.get(f'https://ws.freedom1.ru/redis/scheme:petya') as response:
+            with requests.get(f'{HPPT_REDIS}scheme:petya') as response:
                 data = json.loads(json.loads(response.text))
             #if id_int in [1036498173, 303455267]:
-            start('start', mes_info, data)  
+            print(mes)
+            router('start', mes_info, data)  
             time.sleep(5) 
         return
 
     except Exception as e:
-        print(f'\n Ошибка где-то вылезла: {e}')
+        print(e)
         return
     
 
-    
 if __name__ == "__main__":
-    print('START')
     while True:
         get_message()
-
 else:
     print("Script is imported")

@@ -1,13 +1,15 @@
-import json
-import requests
 from datetime import datetime, timedelta
+import json
 
-REDIS = 'https://ws.freedom1.ru/redis/'
+import requests
+
+from config import HTTP_1C, HPPT_REDIS, HTTP_VECTOR
 
 #запрос в векторную базу
 def getVector(text, mes):
-    with requests.get(f'http://192.168.111.151:8080/v1/promt?query={mes}') as response:
+    with requests.get(f'{HTTP_VECTOR}promt?query={mes}') as response:
         data = json.loads(response.text)
+    a = data[0]['template']
     text += data[0]['template']
     
     return text
@@ -15,9 +17,8 @@ def getVector(text, mes):
     
 # Проверка на наличие абонплаты
 def isAvans(login):
-    with requests.get(f'{REDIS}login:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
-    print(response.url)
     service_type = data['service_type']
     if 'Абонплата' in service_type:
         return True
@@ -25,7 +26,7 @@ def isAvans(login):
 
 # проверка на наличие рассрочки
 def isInstallment(login):
-    with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={login}') as response:
+    with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={login}') as response:
             installments = json.loads(response.text)
         
     for installment in installments:
@@ -36,7 +37,7 @@ def isInstallment(login):
 
 # Проверка на блокировку
 def isBlocked(login):
-    with requests.get(f'{REDIS}login:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     if 'servicecats' in data:
@@ -56,7 +57,7 @@ def isBlocked(login):
 
 # Проверка на индексацию
 def isIndexing(login):
-    with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=price_indexation&login={login}') as response:
+    with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={login}') as response:
         data = json.loads(response.text)
     
     for element_data in data:
@@ -67,7 +68,7 @@ def isIndexing(login):
 
 # Проверка на наличие ошибок
 def isFailure(login):
-    with requests.get(f'{REDIS}login:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     if 'hostId' in data:
@@ -77,20 +78,20 @@ def isFailure(login):
     addressCodes = data['addressCodes']
         
     if hostId:
-        with requests.get(f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
+        with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
             data = fai_host.text
         if data != 'false':
             return True
         
     for address in addressCodes:
-        with requests.get(f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:failure%20%27@address:[{address}%20{address}]%27') as fai_add:
+        with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{address}%20{address}]%27') as fai_add:
             data = fai_add.text
         if data != 'false':
             return True       
     return False
 
 def isGpon(login):
-    with requests.get(f'{REDIS}login:{login}') as get_login_text:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
         
     contype = ''
@@ -100,7 +101,7 @@ def isGpon(login):
 
     houseId = get_login['houseId']
 
-    with requests.get(f'{REDIS}adds:{houseId}') as get_house_text:
+    with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
         get_house = json.loads(json.loads(get_house_text.text))
 
     if contype == '':
@@ -113,7 +114,7 @@ def isGpon(login):
 
 
 def isDiscount(login):
-    with requests.get(f'http://server1c.freedom1.ru/UNF_CRM_WS/hs/Grafana/anydata?query=discount&login={login}') as response:
+    with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=discount&login={login}') as response:
         discounts = json.loads(response.text)
 
     if discounts != []:
@@ -121,7 +122,7 @@ def isDiscount(login):
     return False
 
 def isNotPayment(login):
-    with requests.get(f'{REDIS}login:{login}') as get_login_text:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
 
     payment = get_login['payment']
@@ -131,7 +132,7 @@ def isNotPayment(login):
     return False
 
 def IsPauseAndPayment(login):
-    with requests.get(f'{REDIS}login:{login}') as get_login_text:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
 
     next_payment = get_login.get('paymentNext', 'Неизвестно')
@@ -139,10 +140,10 @@ def IsPauseAndPayment(login):
 
     houseid = get_login.get('houseId', 'Неизвестно')
 
-    with requests.get(f'{REDIS}adds:{houseid}') as houseres:
+    with requests.get(f'{HPPT_REDIS}adds:{houseid}') as houseres:
         house = json.loads(json.loads(houseres.text))
 
-    with requests.get(f'{REDIS}terrtar:{house["territoryId"]}') as territory:
+    with requests.get(f'{HPPT_REDIS}terrtar:{house["territoryId"]}') as territory:
         ter = json.loads(json.loads(territory.text))
                 
     deactivation_date = ter.get('shutdownday', 0)
@@ -154,7 +155,7 @@ def IsPauseAndPayment(login):
 
 #Проверка на запланированный выезд
 def isVisitScheduled(login):
-    with requests.get(f'{REDIS}loginplan:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}loginplan:{login}') as response:
         data = json.loads(response.text)
 
     if isinstance(data, bool):
@@ -174,7 +175,7 @@ def isVisitScheduled(login):
 
 #Проверка будущий или прошлый выезд
 def isFutureVisit(login):
-    with requests.get(f'{REDIS}loginplan:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}loginplan:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     start = int(data['start'])
@@ -190,7 +191,7 @@ def isFutureVisit(login):
 
 #Проверка тип выезда
 def isServise(login):
-    with requests.get(f'{REDIS}loginplan:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}loginplan:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     type_visit = data['typeBP']
@@ -202,7 +203,7 @@ def isServise(login):
 
 
 def isCamera(login):
-    with requests.get(f'{REDIS}login:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     services = data['services']
@@ -214,7 +215,7 @@ def isCamera(login):
 
 
 def isBlockedCamera(login):
-    with requests.get(f'{REDIS}login:{login}') as response:
+    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
 
     services = data['services']
@@ -226,3 +227,25 @@ def isBlockedCamera(login):
             return True
         
     return True
+
+    
+def isWired(login):
+    with requests.get(f'{HPPT_REDIS}login:{login}') as get_login_text:
+        get_login = json.loads(json.loads(get_login_text.text))
+        
+    contype = ''
+    if 'servicecats' in get_login:
+        if 'contype' in get_login['servicecats']['internet']:
+            contype = get_login['servicecats']['internet']['contype']
+
+    houseId = get_login['houseId']
+
+    with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
+        get_house = json.loads(json.loads(get_house_text.text))
+
+    if contype == '':
+        contype = get_house['conn_type'][0]
+    type = 'wired'
+    if type == contype:
+        return True
+    return False

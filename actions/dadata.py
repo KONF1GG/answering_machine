@@ -1,8 +1,10 @@
 import json
+
 import requests
-from config import DADATA_TOKEN
-from connections import db_connextion
-from functions.llm import gpt
+
+from config import DADATA_TOKEN, HPPT_REDIS, HTTP_VECTOR
+from connections import execute_sql
+from services.llm import mistral
 
 
 def select_login_based_on_service(mes, logins, login_data):
@@ -20,19 +22,15 @@ def select_login_based_on_service(mes, logins, login_data):
     # Проверяем, у какого логина есть сервис, и возвращаем его
     if first_service is None and second_service is not None:
         login = second_login.split(':')[1]
-        db_connection = db_connextion()
-        cur = db_connection.cursor(buffered=True)
-        cur.execute(f'uptate ChatParameters set login_ai = "{login}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-        db_connection.commit()
-        db_connection.close()
+        query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
+        params = (login, id_int, id_str, chatBot)
+        execute_sql('update', query, params)
         return True
     elif second_service is None and first_service is not None:
         login = first_login.split(':')[1]
-        db_connection = db_connextion()
-        cur = db_connection.cursor(buffered=True)
-        cur.execute(f'uptate ChatParameters set login_ai = "{login}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-        db_connection.commit()
-        db_connection.close
+        query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
+        params = (login, id_int, id_str, chatBot)
+        execute_sql('update', query, params)
         return True
     else:
         return False
@@ -46,33 +44,32 @@ def find_login(mes):
 
 
     # Промпт для извлечения адреса из сообщения
-    with requests.get(f'http://192.168.111.151:8080/v1/address?query={message}') as response:
+    with requests.get(f'{HTTP_VECTOR}address?query={message}') as response:
         data = json.loads(response.text)
 
-    d0 = data[0] 
     example = data[0]['address'] + ', ' + data[1]['address'] + ', ' + data[2]['address']
     prompt_name = 'address_identification'
     prompt_scheme = mes['prompt']
 
-    with requests.get(f'https://ws.freedom1.ru/redis/{prompt_scheme}') as res:
+    with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
 
     address_extraction_prompt = template.format(example=example)
 
-    db_connection = db_connextion()
-    cur = db_connection.cursor(buffered=True)
-    cur.execute(f'select prompt, story, category from ChatParameters where id_int = {id_int} and id_str = "{id_str}"  and chat_bot = "{chatBot}"')
-    row = cur.fetchone()
-    db_connection.close()  
+    select_query = 'select story from ChatParameters where id_int = %s and id_str = %s and chat_bot = %s'
+    select_params = (id_int, id_str, chatBot)
+    row = execute_sql('select_one', select_query, select_params)
+    story = row[0]
+
     message = []
-    message = json.loads(row[1].replace("'", '"').replace('\"', '"')) 
+    message = json.loads(story.replace("'", '"').replace('\"', '"')) 
     promt_new_mes = {"role": "system", "content": address_extraction_prompt}
     message.insert(0, promt_new_mes)
 
     # Извлекаем адрес с помощью API Mistral
-    extracted_address = gpt(message)
+    extracted_address = mistral(message)
 
     # Настройка запроса к API Dadata
     dadata_url = 'http://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address'
@@ -97,7 +94,7 @@ def find_login(mes):
         ).replace('-', '%20')
 
         # Запрашиваем данные о доме через кастомный API
-        with requests.get(f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:adds.fias%20%27@fiasUUID:%27{fias_id}%27') as house_response:
+        with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:adds.fias%20%27@fiasUUID:%27{fias_id}%27') as house_response:
             house_data = json.loads(house_response.text)
 
         if house_data:
@@ -107,7 +104,7 @@ def find_login(mes):
 
         # Запрашиваем список логинов, связанных с этим домом
         login_query_url = (
-            f'https://ws.freedom1.ru/redis/raw?query=FT.SEARCH%20idx:login%20%27@houseId:[{house_id}%20{house_id}]%27%20Limit%200%20500'
+            f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:login%20%27@houseId:[{house_id}%20{house_id}]%27%20Limit%200%20500'
         )
 
         with requests.get(login_query_url) as login_response:
@@ -130,11 +127,9 @@ def find_login(mes):
                     return select_login_based_on_service(mes, matching_logins, login_data)
                 elif len(matching_logins) == 1:
                     login = matching_logins[0].split(':')[1]
-                    db_connection = db_connextion()
-                    cur = db_connection.cursor(buffered=True)
-                    cur.execute(f'update ChatParameters set login_ai = "{login}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-                    db_connection.commit()
-                    db_connection.close()
+                    login_serv_query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
+                    login_serv_params = (login, id_int, id_str, chatBot)
+                    execute_sql('update', login_serv_query, login_serv_params)
                     return True
                 else:
                     return False
@@ -146,11 +141,9 @@ def find_login(mes):
                 return select_login_based_on_service(mes, logins, login_data)
             elif len(logins) == 1:
                 login = logins[0].split(':')[1]
-                db_connection = db_connextion()
-                cur = db_connection.cursor(buffered=True)
-                cur.execute(f'update ChatParameters set login_ai = "{login}" where id_int = {id_int} and id_str = "{id_str}" and chat_bot = "{chatBot}"')
-                db_connection.commit()
-                db_connection.close()
+                login_flat_query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
+                login_flat_params = (login, id_int, id_str, chatBot)
+                execute_sql('update', login_flat_query, login_flat_params)
                 return True
             else:
                 return False
