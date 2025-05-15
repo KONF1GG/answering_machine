@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import time
 import json
+import pytz
 
 import requests
 
@@ -15,8 +16,9 @@ def get_message():
     #запускает диалоговый роутер.
     #"""
 
-    try:        
-        dt_5min = datetime.now() - timedelta(minutes=5)
+    try:     
+        tz = pytz.timezone('Asia/Yekaterinburg')     
+        dt_5min = datetime.now(tz) - timedelta(minutes=5)
             
         query = '''
                 select * from ChatStory join ChatParameters
