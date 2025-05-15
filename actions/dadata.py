@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from config import DADATA_TOKEN, HPPT_REDIS, HTTP_VECTOR
+from config import DADATA_TOKEN, HTTP_REDIS, HTTP_VECTOR
 from connections import execute_sql
 from services.llm import mistral
 
@@ -51,7 +51,7 @@ def find_login(mes):
     prompt_name = 'address_identification'
     prompt_scheme = mes['prompt']
 
-    with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
+    with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     template = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '').replace('<', '{').replace('>', '}')
@@ -94,7 +94,7 @@ def find_login(mes):
         ).replace('-', '%20')
 
         # Запрашиваем данные о доме через кастомный API
-        with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:adds.fias%20%27@fiasUUID:%27{fias_id}%27') as house_response:
+        with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:adds.fias%20%27@fiasUUID:%27{fias_id}%27') as house_response:
             house_data = json.loads(house_response.text)
 
         if house_data:
@@ -104,7 +104,7 @@ def find_login(mes):
 
         # Запрашиваем список логинов, связанных с этим домом
         login_query_url = (
-            f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:login%20%27@houseId:[{house_id}%20{house_id}]%27%20Limit%200%20500'
+            f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:login%20%27@houseId:[{house_id}%20{house_id}]%27%20Limit%200%20500'
         )
 
         with requests.get(login_query_url) as login_response:

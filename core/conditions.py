@@ -7,7 +7,7 @@ import requests
 from connections import execute_sql
 from actions.dadata import find_login
 from services.llm import mistral
-from config import HPPT_REDIS
+from config import HTTP_REDIS
 import actions.action_functions as af
 
 zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop']
@@ -17,7 +17,7 @@ def login_application(mes):
     id_int = mes['id_int']
     chatBot = mes['chatBot']
 
-    with requests.get(f'{HPPT_REDIS}jivoid:{id_str}') as response:
+    with requests.get(f'{HTTP_REDIS}jivoid:{id_str}') as response:
         data = json.loads(json.loads(response.text))
 
     if 'login' in data:
@@ -63,7 +63,7 @@ def is_abon_info_mes(mes):
     prompt_scheme = mes['prompt']
     prompt_name = 'first_identification'
 
-    with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
+    with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     prompt = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '')
@@ -79,7 +79,7 @@ def is_abon_info_mes(mes):
     elif ans == 'Нет':
         return False
     elif 5 < len(ans) < 11:
-        link = f'{HPPT_REDIS}raw?query=ft.search%20idx:searchLogin%20%27{ans}%27'
+        link = f'{HTTP_REDIS}raw?query=ft.search%20idx:searchLogin%20%27{ans}%27'
         with requests.get(link) as responce:
             data = json.loads(responce.text)
 
@@ -104,7 +104,7 @@ def is_physic(mes):
     login = mes['login']
     messageId = mes['messageId']
 
-    with requests.get(f'{HPPT_REDIS}login:{login}') as response:
+    with requests.get(f'{HTTP_REDIS}login:{login}') as response:
         try:
             data = json.loads(json.loads(response.text))
             if data['legal_entity']:

@@ -3,7 +3,7 @@ import json
 
 import requests
 
-from config import HPPT_REDIS
+from config import HTTP_REDIS
 from connections import execute_sql
 from services.llm import mistral
 from prompts.extract_words import extract_words
@@ -101,7 +101,7 @@ def find_login(mes):
         prompt_name = 'support_identification'
         prompt_scheme = mes['prompt']
 
-        with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
+        with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
             prompt_data = json.loads(json.loads(res.text))
 
         template = next(
@@ -168,7 +168,7 @@ def category(mes):
     prompt_name = 'first_category'
     prompt_scheme = mes['prompt']
 
-    with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
+    with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     template = next(
@@ -271,7 +271,7 @@ def all_mes_category(mes):
     prompt_scheme = mes['prompt']
 
     try:
-        with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
+        with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
             prompt_data = json.loads(json.loads(res.text))
 
         template = next(

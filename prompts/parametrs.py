@@ -4,11 +4,11 @@ import json
 import requests
 from dateutil.relativedelta import relativedelta
 
-from config import HTTP_1C, HPPT_REDIS
+from config import HTTP_1C, HTTP_REDIS
 
 class Abonent:
     def __init__(self, login):
-        with requests.get(f'{HPPT_REDIS}login:{login}') as response:
+        with requests.get(f'{HTTP_REDIS}login:{login}') as response:
             self.data = json.loads(json.loads(response.text))
         
         self.login = login
@@ -64,10 +64,10 @@ class Abonent:
         houseid = self.data.get('houseId', 'Неизвестно')
 
         try:
-            with requests.get(f'{HPPT_REDIS}adds:{houseid}') as houseres:
+            with requests.get(f'{HTTP_REDIS}adds:{houseid}') as houseres:
                 house = json.loads(json.loads(houseres.text))
 
-            with requests.get(f'{HPPT_REDIS}terrtar:{house["territoryId"]}') as territory:
+            with requests.get(f'{HTTP_REDIS}terrtar:{house["territoryId"]}') as territory:
                 ter = json.loads(json.loads(territory.text))
                 
             return str(ter.get('shutdownday', 'Неизвестно'))
@@ -83,13 +83,13 @@ class Abonent:
         addressCodes = self.data['addressCodes']
             
         if hostId != '':
-            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
+            with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
                 fail_data = fai_host.text
             if fail_data != 'false':
                 return 'В данный момент наблюдается авария'
             
         for adress in addressCodes:
-            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
+            with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
                 fai_data = fai_add.text
             if fai_data != 'false':
                 return 'В данный момент наблюдается авария'
@@ -113,7 +113,7 @@ class Abonent:
         addressCodes = self.data['addressCodes']
             
         if hostId != '':
-            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
+            with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
                 fail_data = json.loads(fai_host.text)
             if fail_data != 'false':
                 key = next(iter(fail_data))
@@ -121,7 +121,7 @@ class Abonent:
                 return messages[message]
             
         for adress in addressCodes:
-            with requests.get(f'{HPPT_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
+            with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{adress}%20{adress}]%27') as fai_add:
                 fai_data = fai_add.text
             if fai_data != 'false':
                 key = next(iter(fail_data))
@@ -269,7 +269,7 @@ class Abonent:
 
 
     def available_services(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as get_login_text:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
         
         contype = ''
@@ -279,7 +279,7 @@ class Abonent:
 
         houseId = get_login['houseId']
 
-        with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
+        with requests.get(f'{HTTP_REDIS}adds:{houseId}') as get_house_text:
             get_house = json.loads(json.loads(get_house_text.text))
 
         territoryId = get_house['territoryId']
@@ -287,7 +287,7 @@ class Abonent:
         if contype == '':
             contype = get_house['conn_type'][0]
                 
-        with requests.get(f'{HPPT_REDIS}terrtar:{territoryId}') as get_ter_text:
+        with requests.get(f'{HTTP_REDIS}terrtar:{territoryId}') as get_ter_text:
             get_ter = json.loads(json.loads(get_ter_text.text))
 
         tarif_text = ''
@@ -345,7 +345,7 @@ class Abonent:
 
         
     def servise_date(self):
-        with requests.get(f'{HPPT_REDIS}loginplan:{self.login}') as response:
+        with requests.get(f'{HTTP_REDIS}loginplan:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         start = int(data['start'])
@@ -354,7 +354,7 @@ class Abonent:
     
 
     def camera_status(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         services = data['services']
@@ -370,7 +370,7 @@ class Abonent:
 
 
     def contype(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as get_login_text:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
             
         contype = ''
@@ -380,7 +380,7 @@ class Abonent:
 
         houseId = get_login['houseId']
 
-        with requests.get(f'{HPPT_REDIS}adds:{houseId}') as get_house_text:
+        with requests.get(f'{HTTP_REDIS}adds:{houseId}') as get_house_text:
             get_house = json.loads(json.loads(get_house_text.text))
 
         if contype == '':
@@ -394,7 +394,7 @@ class Abonent:
         return 'Беспроводная технология подключения.'
     
     def intercom_status(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         services = data['services']
@@ -408,7 +408,7 @@ class Abonent:
         return 'Услуга домофонии не подключена'
     
     def terrytory_name(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         territory = data['territory']
@@ -417,7 +417,7 @@ class Abonent:
     
 
     def tv_status(self):
-        with requests.get(f'{HPPT_REDIS}login:{self.login}') as response:
+        with requests.get(f'{HTTP_REDIS}login:{self.login}') as response:
             data = json.loads(json.loads(response.text))
 
         services = data['services']

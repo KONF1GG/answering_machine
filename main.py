@@ -4,7 +4,7 @@ import json
 
 import requests
 
-from config import HPPT_REDIS
+from config import HTTP_REDIS
 from connections import execute_sql
 from core.router import router
 
@@ -62,10 +62,9 @@ def get_message():
             params = (chatBot, messageId)
             execute_sql('update', query, params)
 
-            with requests.get(f'{HPPT_REDIS}scheme:petya') as response:
+            with requests.get(f'{HTTP_REDIS}scheme:petya') as response:
                 data = json.loads(json.loads(response.text))
             #if id_int in [1036498173, 303455267]:
-            print(mes)
             router('start', mes_info, data)  
             time.sleep(5) 
         return
