@@ -40,7 +40,6 @@ def non_category(mes: dict):
                         return 'Какой у Вас вопрос?'
 
                 except (IndexError, ValueError) as e:
-                    print(f"Ошибка при разборе шага: {e}")
                     # Если формат неверный — сбросим шаг
                     execute_sql('update', """
                         UPDATE ChatParameters 

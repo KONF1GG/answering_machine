@@ -6,8 +6,6 @@ def condition(mes, key):
     func = getattr(con, key, None)
     if callable(func):
         return func(mes)
-    else:
-        print(f'Function {key} not found')
     return False
 
 
