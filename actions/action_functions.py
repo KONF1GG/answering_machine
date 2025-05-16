@@ -290,7 +290,7 @@ def all_mes_category(mes):
 
     ans = mistral(gpt_prompt)
 
-    if ans == 'Категория неопределена':
+    if ans.strip().lower() == 'категория неопределена':
         ans = category
 
     query_update_story = """
