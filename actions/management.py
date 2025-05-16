@@ -1,8 +1,10 @@
 from datetime import datetime
 from connections import execute_sql
+import pytz
 
 
 def non_category(mes: dict):
+    tz = pytz.timezone('Asia/Yekaterinburg')      
     id_str = mes['id_str']
     id_int = mes['id_int']
     chatBot = mes['chatBot']
@@ -18,7 +20,7 @@ def non_category(mes: dict):
 
     if row[0] and 'non_category' in row[0]:
         if row[0] != 'non_category':
-            dt = datetime.now()
+            dt = datetime.now(tz)
             dt_str = dt.strftime('%d.%m.%Y %H:%M:%S')
             step_dt_str = row[0].split(';')[1]
             step_dt = datetime.strptime(step_dt_str, '%d.%m.%Y %H:%M:%S')
@@ -55,7 +57,8 @@ def non_category(mes: dict):
             return 'Передать диспетчеру'
 
     else:
-        dt_now = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
+        
+        dt_now = datetime.now(tz).strftime('%d.%m.%Y %H:%M:%S')
 
         execute_sql('update', """
                 UPDATE ChatParameters 
