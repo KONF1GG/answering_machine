@@ -3,7 +3,7 @@ import json
 
 import requests
 
-from config import HTTP_REDIS
+from config import HPPT_REDIS
 from connections import execute_sql
 from services.llm import mistral
 from prompts.extract_words import extract_words
@@ -101,7 +101,7 @@ def find_login(mes):
         prompt_name = 'support_identification'
         prompt_scheme = mes['prompt']
 
-        with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
+        with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
             prompt_data = json.loads(json.loads(res.text))
 
         template = next(
@@ -168,7 +168,7 @@ def category(mes):
     prompt_name = 'first_category'
     prompt_scheme = mes['prompt']
 
-    with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
+    with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
         prompt_data = json.loads(json.loads(res.text))
 
     template = next(
@@ -225,7 +225,7 @@ def prompt(mes):
 
     if row_category is not None and row_category[1] == 1:
         schema = row_category[0]
-        prompt_obj = text_prompt.Prompt(login, schema, mes['text'])
+        prompt_obj = text_prompt.Prompt(login, schema, mes)
         text = prompt_obj.start('start', '')
 
         if text == 'to_disp':
@@ -271,13 +271,14 @@ def all_mes_category(mes):
     prompt_scheme = mes['prompt']
 
     try:
-        with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
+        with requests.get(f'{HPPT_REDIS}{prompt_scheme}') as res:
             prompt_data = json.loads(json.loads(res.text))
 
         template = next(
             (d['template'] for d in prompt_data if d['name'] == prompt_name), ''
         ).replace('<', '{').replace('>', '}')
     except Exception as e:
+        print(f"[Ошибка загрузки шаблона] {e}")
         template = ''
 
     story = all_mes_on_day(mes, sql=False, text=True)
@@ -349,7 +350,6 @@ def anser(mes):
         ins_params = (id_str, id_int, login, category, promt, messageId, datetime.now(), ans)
         execute_sql('insert', ins_query, ins_params)
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
-
     elif is_prompt == 1 and is_active == 1 and promt is not None:
         ans = mistral(message)
         if ans is not None:
@@ -414,5 +414,8 @@ def anser(mes):
         ans = non_category(mes) if category != 'Благодарность' else 'Рад помочь!'
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
     elif is_prompt == 1 and is_active == 0:
+        ans = 'Передать диспетчеру'
+        get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+    else:
         ans = 'Передать диспетчеру'
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
