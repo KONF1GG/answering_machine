@@ -249,3 +249,14 @@ def isWired(login):
     if type == contype:
         return True
     return False
+
+
+def isInternet(login):
+    with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
+            get_login = json.loads(json.loads(get_login_text.text))
+        
+    if 'servicecats' in get_login:
+            if 'internet' in get_login['servicecats']:
+                return True
+    
+    return False

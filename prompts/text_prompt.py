@@ -63,6 +63,8 @@ class Prompt:
             return prompt_functions.isBlockedCamera(self.login)
         elif key == 'isWired':
             return prompt_functions.isWired(self.login)
+        elif key == 'isInternet':
+            return prompt_functions.isInternet(self.login)
         else:
             print(f'Function {key} not found')
         return False
