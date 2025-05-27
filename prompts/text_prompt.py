@@ -68,7 +68,7 @@ class Prompt:
         return False
 
     def start(self, key, text):
-        if not key or key == 'finish':
+        if not key or 'finish' in key:
             return text  # Возвращаем результат
 
         if key not in self.scheme:
