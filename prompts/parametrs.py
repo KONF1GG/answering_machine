@@ -272,10 +272,7 @@ class Abonent:
         with requests.get(f'{HTTP_REDIS}login:{self.login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
         
-        contype = ''
-        if 'servicecats' in get_login:
-            if 'contype' in get_login['servicecats']['internet']:
-                contype = get_login['servicecats']['internet']['contype']
+        contype = get_login.get('servicecats', {}).get('internet', {}).get('contype', '')
 
         houseId = get_login['houseId']
 
