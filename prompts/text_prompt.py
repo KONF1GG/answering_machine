@@ -94,15 +94,19 @@ class Prompt:
             return self.start('finish', 'to_disp')
         elif todo == 'getVector_one':
             next_step = self.scheme[key]['next']
-            text_vector = vectors.getVector_one(text, self.mes)
+            text_vector = vectors.getVector(text, self.mes)
             return self.start(next_step, text_vector)
         elif todo == 'getVector_two':
             next_step = self.scheme[key]['next']
-            text_vector = vectors.getVector_two(text, self.mes)
+            text_vector = vectors.getVector(text, self.mes)
             return self.start(next_step, text_vector)
         elif todo == 'getVector_three':
             next_step = self.scheme[key]['next']
-            text_vector = vectors.getVector_three(text, self.mes)
+            text_vector = vectors.getVector(text, self.mes)
+            return self.start(next_step, text_vector)
+        elif todo == 'getVector':
+            next_step = self.scheme[key]['next']
+            text_vector = vectors.getVector(text, self.mes)
             return self.start(next_step, text_vector)
 
         else:
