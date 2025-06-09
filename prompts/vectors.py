@@ -33,7 +33,6 @@ def getVector(text: str, mes: dict):
         if 'detail' in row:
             return 'В базе нет инструкций для ответа на вопрос абонента. Если без этих инструкция данных для ответа недостаточно, то в ответе скажи только кодовую фразу "Передать диспетчеру".'
         else:
-            text += row['template'] + '\n'
+            text += '\n' + row['template']
             
-
     return text

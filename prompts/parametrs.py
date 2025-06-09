@@ -8,8 +8,9 @@ from config import HTTP_1C, HTTP_REDIS
 
 class Abonent:
     def __init__(self, login):
-        with requests.get(f'{HTTP_REDIS}login:{login}') as response:
-            self.data = json.loads(json.loads(response.text))
+        if login != '':
+            with requests.get(f'{HTTP_REDIS}login:{login}') as response:
+                self.data = json.loads(json.loads(response.text))
         
         self.login = login
 

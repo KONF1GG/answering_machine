@@ -3,16 +3,7 @@ import json
 
 import requests
 
-from config import HTTP_1C, HTTP_REDIS, HTTP_VECTOR
-
-#запрос в векторную базу
-def getVector(text, mes):
-    with requests.get(f'{HTTP_VECTOR}promt?query={mes}') as response:
-        data = json.loads(response.text)
-    a = data[0]['template']
-    text += data[0]['template']
-    
-    return text
+from config import HTTP_1C, HTTP_REDIS
 
     
 # Проверка на наличие абонплаты
@@ -90,14 +81,12 @@ def isFailure(login):
             return True       
     return False
 
+
 def isGpon(login):
     with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
         
-    contype = ''
-    if 'servicecats' in get_login:
-        if 'contype' in get_login['servicecats']['internet']:
-            contype = get_login['servicecats']['internet']['contype']
+    contype = get_login.get('servicecats', {}).get('internet', {}).get('contype', '')
 
     houseId = get_login['houseId']
 
@@ -121,6 +110,7 @@ def isDiscount(login):
         return True
     return False
 
+
 def isNotPayment(login):
     with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
@@ -130,6 +120,7 @@ def isNotPayment(login):
     if int(payment) == 0 and payment_next == False:
         return True
     return False
+
 
 def IsPauseAndPayment(login):
     with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
@@ -233,10 +224,7 @@ def isWired(login):
     with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
         get_login = json.loads(json.loads(get_login_text.text))
         
-    contype = ''
-    if 'servicecats' in get_login:
-        if 'contype' in get_login['servicecats']['internet']:
-            contype = get_login['servicecats']['internet']['contype']
+    contype = get_login.get('servicecats', {}).get('internet', {}).get('contype', '')
 
     houseId = get_login['houseId']
 
@@ -251,6 +239,25 @@ def isWired(login):
     return False
 
 
+def isWireless(login):
+    with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
+        get_login = json.loads(json.loads(get_login_text.text))
+        
+    contype = get_login.get('servicecats', {}).get('internet', {}).get('contype', '')
+
+    houseId = get_login['houseId']
+
+    with requests.get(f'{HTTP_REDIS}adds:{houseId}') as get_house_text:
+        get_house = json.loads(json.loads(get_house_text.text))
+
+    if contype == '':
+        contype = get_house['conn_type'][0]
+    type = 'wireless'
+    if type == contype:
+        return True
+    return False
+
+
 def isInternet(login):
     with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
             get_login = json.loads(json.loads(get_login_text.text))
@@ -258,5 +265,43 @@ def isInternet(login):
     if 'servicecats' in get_login:
             if 'internet' in get_login['servicecats']:
                 return True
-    
     return False
+
+def isSibay(login):
+    with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
+            get_login = json.loads(json.loads(get_login_text.text))
+        
+    if get_login['territory'] == 'Сибай (SB)':
+        return True
+    return False
+
+
+def isIntercom(login):
+    with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
+            get_login = json.loads(json.loads(get_login_text.text))
+        
+    if 'servicecats' in get_login:
+            if 'intercom' in get_login['servicecats']:
+                return True
+    return False
+
+
+def isBlockedIntercom(login):
+    with requests.get(f'{HTTP_REDIS}login:{login}') as get_login_text:
+            get_login = json.loads(json.loads(get_login_text.text))
+        
+    if 'servicecats' in get_login:
+            if 'intercom' in get_login['servicecats']:
+                time_to = get_login['servicecats']['intercom']['timeto']
+    else:
+        time_to = get_login['time_to']
+    
+    if datetime.fromtimestamp(time_to) < datetime.now():
+        return True
+    return False
+
+
+def isAbon(login):
+    if login == '':
+        return False
+    return True

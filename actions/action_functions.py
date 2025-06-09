@@ -83,8 +83,7 @@ def find_login(mes):
     category = row[1] if row and row[1] else ''
 
     if row and category == 'Подключение':
-        ans = 'Передать диспетчеру'
-        get_to_1c(id_str, id_int, chatBot, messageId, ans, '', category, mes['dt'])
+        return 'Подключение'
     elif row and row[0] not in ['login_search_mes_sent', 'login_search_mes_sent_1']:
         ans = 'Здравствуйте! Пожалуйста, уточните ваш адрес (включая населенный пункт) или номер договора.'
         get_to_1c(
@@ -217,6 +216,7 @@ def prompt(mes):
     query = """
         SELECT cat.scheme, cat.is_prompt
         FROM ChatParameters c
+
         JOIN category cat ON c.category = cat.category_name
         WHERE c.id_int = %s AND c.id_str = %s AND c.chat_bot = %s
     """
@@ -350,14 +350,12 @@ def anser(mes):
         ins_params = (id_str, id_int, login, category, promt, messageId, datetime.now(), ans)
         execute_sql('insert', ins_query, ins_params)
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
+
     elif is_prompt == 1 and is_active == 1 and promt is not None:
         ans = mistral(message)
         if ans is not None:
             if 'испетчер' in ans:
                 ans = 'Передать диспетчеру'
-            ans = ans.replace('Здравствуйте! ', '').replace(
-                'Здравствуйте. ', ''
-            ).replace('Здравствуйте, ', '')
             ins_query = """
                 INSERT INTO ChatCategory 
                 (id_str, id_int, login, category, prompt, messageId, dt, mes) 
@@ -391,9 +389,7 @@ def anser(mes):
             if ans is not None:
                 if 'испетчер' in ans:
                     ans = 'Передать диспетчеру'
-                ans = ans.replace('Здравствуйте! ', '').replace(
-                    'Здравствуйте. ', ''
-                ).replace('Здравствуйте, ', '').replace('Ты: ', '')
+                ans = ans.replace('Ты: ', '')
                 ins_query = """
                     INSERT INTO ChatCategory 
                     (id_str, id_int, login, category, prompt, messageId, dt, mes) 

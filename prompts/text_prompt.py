@@ -7,13 +7,14 @@ from prompts import prompt_functions, vectors
 
 class Prompt:
     def __init__(self, login, schema, mes):
-        with requests.get(f'{HTTP_REDIS}login:{login}') as response:
-            inner_json_str = json.loads(response.text)  # первый уровень
-        
-        if type(inner_json_str) is not dict:
-            self.data = json.loads(inner_json_str)      # второй уровень
-        else:
-            self.data = inner_json_str
+        if login != '':
+            with requests.get(f'{HTTP_REDIS}login:{login}') as response:
+                inner_json_str = json.loads(response.text)  # первый уровень
+            
+            if type(inner_json_str) is not dict:
+                self.data = json.loads(inner_json_str)      # второй уровень
+            else:
+                self.data = inner_json_str
 
         with requests.get(f'{HTTP_REDIS}{schema}') as response:
             self.scheme = json.loads(json.loads(response.text))
@@ -63,8 +64,18 @@ class Prompt:
             return prompt_functions.isBlockedCamera(self.login)
         elif key == 'isWired':
             return prompt_functions.isWired(self.login)
+        elif key == 'isWireless':
+            return prompt_functions.isWireless(self.login)
         elif key == 'isInternet':
             return prompt_functions.isInternet(self.login)
+        elif key == 'isBlockedIntercom':
+            return prompt_functions.isBlockedIntercom(self.login)
+        elif key == 'isIntercom':
+            return prompt_functions.isIntercom(self.login)
+        elif key == 'isSibay':
+            return prompt_functions.isSibay(self.login)
+        elif key == 'isAbon':
+            return prompt_functions.isAbon(self.login)
         else:
             print(f'Function {key} not found')
         return False

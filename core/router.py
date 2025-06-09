@@ -6,6 +6,8 @@ def condition(mes, key):
     func = getattr(con, key, None)
     if callable(func):
         return func(mes)
+    else:
+        print(f'Function {key} not found')
     return False
 
 
@@ -55,6 +57,10 @@ def router(key: str, mes: dict, data: dict):
                     mes = new_mes
                     key = 'finish'
                 continue
+            elif todo == 'find_login':
+                category_status = af.find_login(mes)
+                if category_status == 'Подключение':
+                    next_step = 'action9'
             else:
                 func = getattr(af, todo, None)
                 if callable(func):
