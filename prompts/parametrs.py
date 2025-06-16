@@ -427,3 +427,34 @@ class Abonent:
 
                 return f'Услуга {name}, статус: {status}.'
         return 'Услуга телевидения не подключена'
+
+
+def installment_plan(self):
+        with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={self.login}') as resp:
+            data = json.loads(resp.text)
+
+        text = ''
+        total_monthly_payment = 0
+        total_full_sum = 0
+
+        if data:
+            for item in data:
+                service = item['service']
+                count = item['count']
+                enddate = item['enddate']
+                price = item['price']
+                full_sum = item['sum']
+
+                total_monthly_payment += price * count
+                total_full_sum += full_sum
+
+                text += f"{service}, количество устройств: {count}, до {enddate}, ежемесячный платеж: {price}; "
+
+            text += (
+                f"\nОбщий ежемесячный платеж: {total_monthly_payment}. "
+                f"Общая сумма для полного погашения рассрочки: {total_full_sum}."
+            )
+        else:
+            text = 'У абонента нет активной рассрочки.'
+
+        return text

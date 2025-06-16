@@ -3,39 +3,52 @@ import time
 from mistralai import Mistral
 #from openai import OpenAI
 import httpx
+import random
 
 from config import API_KEY, API_GPT, PROXY
 
 def mistral(message):
-
-    timeout = 60
-
-    """Вызывает API Mistral с таймаутом."""
-    client = Mistral(api_key=API_KEY)
+    """Вызывает API Mistral с таймаутом и несколькими попытками."""
+    
+    API_KEY = "YOUR_API_KEY"  # Убедись, что это определено или передаётся правильно
     model_name = "mistral-large-latest"
+    timeout = 10
+    retry_attempts = 2
+    base_delay = 2  # Начальная задержка
 
-
-    result = [None]  # Используем список, чтобы изменить его внутри потока
-
-    def call_api():
+    def call_api(result):
         try:
+            client = Mistral(api_key=API_KEY)
             response = client.chat.complete(
                 model=model_name,
                 messages=message
             )
-            result[0] = response.choices[0].message.content
+            result['response'] = response.choices[0].message.content
         except Exception as e:
+            result['error'] = e
             print(f"Ошибка API: {e}")
 
-    thread = threading.Thread(target=call_api)
-    thread.start()
-    thread.join(timeout)  # Ждем `timeout` секунд
+    for attempt in range(retry_attempts):
+        result = {'response': None, 'error': None}
+        thread = threading.Thread(target=call_api, args=(result,))
+        thread.start()
+        thread.join(timeout)
 
-    if thread.is_alive():
-        return None
+        if thread.is_alive():
+            print(f"[Попытка {attempt + 1}] Таймаут превышен. Прерываем...")
+            # Прервать поток невозможно безопасно, но можно просто продолжить
+        else:
+            if result['response'] is not None:
+                return str(result['response'])  # Успешный ответ
 
-    time.sleep(1)
-    return str(result[0]) if result[0] else None
+        # Если были ошибки — ждём перед следующей попыткой
+        if attempt < retry_attempts - 1:
+            delay = base_delay * (2 ** attempt) + random.uniform(0, 1)  # Экспоненциальный backoff с jitter
+            print(f"Ждём {delay:.2f} секунд перед повторной попыткой...")
+            time.sleep(delay)
+
+    # Если все попытки исчерпаны
+    return 'Передать диспетчеру'
 
 
 '''def gpt(message):
