@@ -16,8 +16,8 @@ def get_message():
     #запускает диалоговый роутер.
     #"""
 
-    try:     
-        tz = pytz.timezone('Asia/Yekaterinburg')     
+    try:    
+        tz = pytz.timezone('Asia/Yekaterinburg')      
         dt_5min = datetime.now(tz) - timedelta(minutes=5)
             
         query = '''
@@ -72,8 +72,8 @@ def get_message():
         return
 
     except Exception as e:
-        print(e)
-        return
+       print(e)
+    return
     
 
 if __name__ == "__main__":

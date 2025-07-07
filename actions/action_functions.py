@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import time
 import json
 
 import requests
@@ -289,11 +290,36 @@ def all_mes_category(mes):
         {"role": "user", "content": mes['text']}
     ]
 
-    ans = mistral(gpt_prompt)
+    # === Запрос к Mistral с защитой от 429 и None ===
+    ans = None
+    retry_attempts = 3
+    delay = 5  # Начальная задержка
 
-    if 'категория' in ans.lower():
+    for attempt in range(retry_attempts):
+        try:
+            ans = mistral(gpt_prompt)
+            if ans is not None:
+                break
+            else:
+                print("[Предупреждение] LLM вернул None. Повтор...")
+        except Exception as e:
+            print(f"[Ошибка LLM на попытке {attempt + 1}] {e}")
+
+        if attempt < retry_attempts - 1:
+            print(f"Ждём {delay} секунд перед повтором...")
+            time.sleep(delay)
+            delay *= 2  # Экспоненциальный backoff
+    else:
+        print("[Ошибка] Не удалось получить ответ от Mistral после нескольких попыток.")
+        ans = "Категория неопределена"
+
+    # === Проверяем результат ===
+    ans = ans if ans is not None else "Категория неопределена"
+
+    if 'категория' in ans.lower() or ans not in category_list:
         ans = category
 
+    # === Обновляем БД ===
     query_update_story = """
         UPDATE ChatStory 
         SET category = %s 
@@ -350,7 +376,6 @@ def anser(mes):
         ins_params = (id_str, id_int, login, category, promt, messageId, datetime.now(), ans)
         execute_sql('insert', ins_query, ins_params)
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
-
     elif is_prompt == 1 and is_active == 1 and promt is not None:
         ans = mistral(message)
         if ans is not None:
