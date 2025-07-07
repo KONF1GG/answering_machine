@@ -5,12 +5,11 @@ import json
 import requests
 
 from connections import execute_sql
-from actions.dadata import find_login
 from services.llm import mistral
-from config import HTTP_REDIS
+from config import HTTP_REDIS#, ADDRESS_URL
 import actions.action_functions as af
 
-zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop']
+zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop', '{"command":"start"}']
 
 def login_application(mes):
     id_str = mes['id_str_sql']
@@ -73,26 +72,35 @@ def is_abon_info_mes(mes):
 
     ans = mistral(story)
 
-    if ans == 'Да':
-        time.sleep(1)
-        return find_login(mes)
-    elif ans == 'Нет':
-        return False
-    elif 5 < len(ans) < 11:
-        link = f'{HTTP_REDIS}raw?query=ft.search%20idx:searchLogin%20%27{ans}%27'
-        with requests.get(link) as responce:
-            data = json.loads(responce.text)
+    '''if type(ans) == str:
+        if ans == 'Да':
+            time.sleep(1)
+            story_text = af.all_mes_on_day(mes, sql=False, text=True) + mes['text']
+            with requests.get(f'{ADDRESS_URL}adress?query={story_text}') as address_response:
+                data_adsress = json.loads(address_response.text)
+            if data_adsress['login']:
+                login_serv_query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
+                login_serv_params = (data_adsress['login'], id_int, id_str, chatBot)
+                execute_sql('update', login_serv_query, login_serv_params)
+                return True
+            return False
+        elif ans == 'Нет':
+            return False
+        elif 5 < len(ans) < 11:
+            link = f'{HTTP_REDIS}raw?query=ft.search%20idx:searchLogin%20%27{ans}%27'
+            with requests.get(link) as responce:
+                data = json.loads(responce.text)
 
-        if data:
-            login = list(data.keys())[0].split(':')[1]
-            query = """
-                UPDATE ChatParameters 
-                SET login_ai = %s, step = "login_found" 
-                WHERE id_int = %s AND id_str = %s AND chat_bot = %s
-            """
-            params = (login, id_int, id_str, chatBot)
-            execute_sql('update', query, params)
-            return True
+            if data:
+                login = list(data.keys())[0].split(':')[1]
+                query = """
+                    UPDATE ChatParameters 
+                    SET login_ai = %s, step = "login_found" 
+                    WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+                """
+                params = (login, id_int, id_str, chatBot)
+                execute_sql('update', query, params)
+                return True'''
 
     return False
 

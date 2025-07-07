@@ -3,7 +3,16 @@ import json
 
 import requests
 
-from config import HTTP_1C, HTTP_REDIS
+from config import HTTP_1C, HTTP_REDIS, HTTP_VECTOR
+
+#запрос в векторную базу
+def getVector(text, mes):
+    with requests.get(f'{HTTP_VECTOR}promt?query={mes}') as response:
+        data = json.loads(response.text)
+    a = data[0]['template']
+    text += data[0]['template']
+    
+    return text
 
     
 # Проверка на наличие абонплаты

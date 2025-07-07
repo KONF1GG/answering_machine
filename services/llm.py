@@ -1,7 +1,7 @@
 import threading
 import time
 from mistralai import Mistral
-#from openai import OpenAI
+from openai import OpenAI
 import httpx
 
 from config import API_KEY, API_GPT, PROXY
@@ -12,7 +12,7 @@ def mistral(message):
 
     """Вызывает API Mistral с таймаутом."""
     client = Mistral(api_key=API_KEY)
-    model_name = "mistral-large-latest"
+    model_name = "mistral-medium-2505"
 
 
     result = [None]  # Используем список, чтобы изменить его внутри потока
@@ -38,7 +38,7 @@ def mistral(message):
     return str(result[0]) if result[0] else None
 
 
-'''def gpt(message):
+def gpt(message):
 
     # Настройка прокси
     proxy = PROXY  # Замените на адрес вашего прокси
@@ -61,4 +61,4 @@ def mistral(message):
     messages=message
     )
     lala = completion.choices[0].message
-    return lala.content'''
+    return lala.content

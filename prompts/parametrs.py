@@ -427,9 +427,14 @@ class Abonent:
 
                 return f'Услуга {name}, статус: {status}.'
         return 'Услуга телевидения не подключена'
+    
 
+    def tariff_info(self):
+        ter_id = self.data['territoryId']
+        speed = self.data['servicecats']['internet']['speed']
 
-def installment_plan(self):
+    
+    def installment_plan(self):
         with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=%D0%A0%D0%B0%D1%81%D1%81%D1%80%D0%BE%D1%87%D0%BA%D0%B8&login={self.login}') as resp:
             data = json.loads(resp.text)
 
@@ -458,3 +463,17 @@ def installment_plan(self):
             text = 'У абонента нет активной рассрочки.'
 
         return text
+    
+
+    def camera_info(self):
+        services = self.data['services']
+
+        text = ''
+        for service in services:
+            if 'видеонаблюдение' in service['line'].lower():
+                serviceName = service['serviceName']
+                status = service['status']
+                text += f'{serviceName} статус {status}. '
+        
+        return text
+
