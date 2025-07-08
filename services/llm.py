@@ -1,10 +1,10 @@
 import threading
 import time
 from mistralai import Mistral
-#from openai import OpenAI
-import httpx
+from openai import OpenAI
+from httpx import Client
 
-from config import API_KEY#, API_GPT, PROXY
+from config import API_KEY, API_GPT, PROXY
 
 def mistral(message):
 
@@ -38,27 +38,17 @@ def mistral(message):
     return str(result[0]) if result[0] else None
 
 
-'''def gpt(message):
-
-    # Настройка прокси
-    proxy = PROXY  # Замените на адрес вашего прокси
-    proxies = {
-        "http://": proxy,
-        "https://": proxy,
-    }
-
-    # Создаем HTTP-клиент с поддержкой прокси
-    http_client = httpx.Client(proxies=proxies)
+def gpt(message):
+    http_client = Client(proxy=PROXY)
 
     client = OpenAI(
-    api_key=API_GPT,
-    http_client=http_client
+        api_key=API_GPT,
+        http_client=http_client
     )
 
     completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    store=True,
-    messages=message
+        model="gpt-4o-mini",
+        messages=message
     )
-    lala = completion.choices[0].message
-    return lala.content'''
+
+    return completion.choices[0].message.content
