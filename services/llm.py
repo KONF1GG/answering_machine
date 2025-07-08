@@ -1,10 +1,10 @@
 import threading
 import time
 from mistralai import Mistral
-from openai import OpenAI
+#from openai import OpenAI
 import httpx
 
-from config import API_KEY, API_GPT, PROXY
+from config import API_KEY#, API_GPT, PROXY
 
 def mistral(message):
 
@@ -38,7 +38,7 @@ def mistral(message):
     return str(result[0]) if result[0] else None
 
 
-def gpt(message):
+'''def gpt(message):
 
     # Настройка прокси
     proxy = PROXY  # Замените на адрес вашего прокси
@@ -61,4 +61,4 @@ def gpt(message):
     messages=message
     )
     lala = completion.choices[0].message
-    return lala.content
+    return lala.content'''

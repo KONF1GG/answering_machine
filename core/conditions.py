@@ -6,7 +6,7 @@ import requests
 
 from connections import execute_sql
 from services.llm import mistral
-from config import HTTP_REDIS#, ADDRESS_URL
+from config import HTTP_REDIS, HTTP_ADDRESS
 import actions.action_functions as af
 
 zapreshenka = ['start', 'stop', 'chat_closed', '/start', '/stop', '{"command":"start"}']
@@ -72,11 +72,11 @@ def is_abon_info_mes(mes):
 
     ans = mistral(story)
 
-    '''if type(ans) == str:
+    if type(ans) == str:
         if ans == 'Да':
             time.sleep(1)
             story_text = af.all_mes_on_day(mes, sql=False, text=True) + mes['text']
-            with requests.get(f'{ADDRESS_URL}adress?query={story_text}') as address_response:
+            with requests.get(f'{HTTP_ADDRESS}adress?query={story_text}') as address_response:
                 data_adsress = json.loads(address_response.text)
             if data_adsress['login']:
                 login_serv_query = 'update ChatParameters set login_ai = %s where id_int = %s and id_str = %s and chat_bot = %s'
@@ -100,7 +100,7 @@ def is_abon_info_mes(mes):
                 """
                 params = (login, id_int, id_str, chatBot)
                 execute_sql('update', query, params)
-                return True'''
+                return True
 
     return False
 
