@@ -2,21 +2,31 @@ from datetime import datetime, timedelta
 import time
 import json
 import pytz
+import logging
+import logging.config
 
 import requests
+import yaml
 
 from config import HTTP_REDIS
 from connections import execute_sql
 from core.router import router
 
 
-def get_message():
-    #"""
-    #Проверяет новые сообщения из БД за последние 5 минут, обновляет статус и 
-    #запускает диалоговый роутер.
-    #"""
+with open("logging_config.yaml", "r") as f:
+    config = yaml.safe_load(f)
+    logging.config.dictConfig(config)
 
-    #try:    
+logger = logging.getLogger(__name__)
+
+
+def get_message():
+    """
+    Проверяет новые сообщения из БД за последние 5 минут, обновляет статус и 
+    запускает диалоговый роутер.
+    """
+
+    try:    
         tz = pytz.timezone('Asia/Yekaterinburg')      
         dt_5min = datetime.now(tz) - timedelta(minutes=5)
             
@@ -38,6 +48,8 @@ def get_message():
             id_int = row[4]
             login = row[13]
             chatBot = row[21]
+
+            logging.info(f'Найдено сообщение', extra={'id_str':id_str, 'id_int':id_int, 'mes':mes})
 
             if mes == 'Очистить' and chatBot == 'Чат бот:Jivo Chat, токен:':
                 del_query_story = 'delete from ChatStory where id_str = %s and id_int = %s and chat_bot = %s'
@@ -71,9 +83,10 @@ def get_message():
             time.sleep(5) 
         return
 
-    #except Exception as e:
-     #  print(e)
-    #return
+    except Exception as e:
+       logging.debug(f'{e}')
+       logging.error("Произошла ошибка", exc_info=True)
+    return
     
 
 if __name__ == "__main__":

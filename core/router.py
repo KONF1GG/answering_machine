@@ -1,13 +1,18 @@
 import actions.action_functions as af
 import core.conditions as con
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def condition(mes, key):
+    logging.info(f'condition {key}')
     func = getattr(con, key, None)
     if callable(func):
         return func(mes)
     else:
-        print(f'Function {key} not found')
+        logging.debug(f'Function {key} not found')
     return False
 
 
@@ -32,7 +37,7 @@ def router(key: str, mes: dict, data: dict):
     
     while key and key != 'finish':
         todo = data[key]['todo']
-
+        logging.info(f'! ! ! ! {key} ! ! ! !')
         if 'condition' in key:
             yes = data[key]['ifYes']
             no = data[key]['ifNo']

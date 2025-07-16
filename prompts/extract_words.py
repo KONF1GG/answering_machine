@@ -1,5 +1,10 @@
+import logging
 import re
 import prompts.parametrs as params
+
+# Логгер
+logger = logging.getLogger(__name__)
+
 
 def extract_words(text: str, login: str):
     """
@@ -12,8 +17,10 @@ def extract_words(text: str, login: str):
     Returns:
         str: Текст с подставленными значениями. Если метод/поле не найдено — '<name>' заменяется на 'Неопознано'.
     """
+    logger.info('extract_words', extra={'id_str': login, 'id_int': None})
+
     abon = params.Abonent(login)
-    
+
     # Функция для замены одного вхождения <word>
     def replace_match(match):
         word = match.group(1)  # Получаем содержимое между <>
@@ -25,8 +32,10 @@ def extract_words(text: str, login: str):
                 value = attr  # Если это не метод, а свойство
             return str(value)
         except AttributeError:
+            logger.debug(f'Поле или метод "{word}" не найдено у абонента', extra={'id_str': login, 'id_int': None})
             return 'Неопознано'
         except Exception as e:
+            logger.error(f'Ошибка при обработке поля "{word}": {e}', extra={'id_str': login, 'id_int': None})
             return 'Неопознано'
 
     # Заменяем все вхождения <...>

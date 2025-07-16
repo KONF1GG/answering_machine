@@ -1,6 +1,10 @@
 from datetime import datetime
 from connections import execute_sql
 import pytz
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def non_category(mes: dict):
@@ -8,6 +12,10 @@ def non_category(mes: dict):
     id_str = mes['id_str']
     id_int = mes['id_int']
     chatBot = mes['chatBot']
+
+
+    logging.info('non_category', extra={'id_str':id_str, 'id_int':id_int})
+
 
     query = """
         SELECT step 

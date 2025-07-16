@@ -1,9 +1,14 @@
 from contextlib import closing
 from typing import Union
+import logging
 
 import mysql.connector
 
 import config
+
+
+logger = logging.getLogger(__name__)
+
 
 def db_conneсtion():
     db_connection = mysql.connector.connect(
@@ -55,5 +60,6 @@ def execute_sql(operation_type: str, query: str, params: Union[tuple, dict, None
 
             except Exception as e:
                 conn.rollback()
-                print(f"[SQL Ошибка] {e}")
+                logging.debug(f"[SQL Ошибка] {e}")
+                logging.error("Произошла ошибка SQL", exc_info=True)
                 return None

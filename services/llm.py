@@ -3,11 +3,17 @@ import time
 from mistralai import Mistral
 from openai import OpenAI
 from httpx import Client
+import logging
 
 from config import API_KEY, API_GPT, PROXY
 
+
+logger = logging.getLogger(__name__)
+
+
 def mistral(message):
 
+    logging.info('mistral')
     timeout = 60
 
     """Вызывает API Mistral с таймаутом."""
@@ -25,7 +31,8 @@ def mistral(message):
             )
             result[0] = response.choices[0].message.content
         except Exception as e:
-            print(f"Ошибка API: {e}")
+            logging.debug(f"[Ошибка API mistral] {e}")
+            logging.error("Произошла ошибка mistral", exc_info=True)
 
     thread = threading.Thread(target=call_api)
     thread.start()
@@ -39,6 +46,7 @@ def mistral(message):
 
 
 def gpt(message):
+    logging.info('gpt')
     http_client = Client(proxy=PROXY)
 
     client = OpenAI(
