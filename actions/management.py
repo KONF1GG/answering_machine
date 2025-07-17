@@ -31,7 +31,7 @@ def non_category(mes: dict):
             dt = datetime.now(tz)
             dt_str = dt.strftime('%d.%m.%Y %H:%M:%S')
             step_dt_str = row[0].split(';')[1]
-            step_dt = datetime.strptime(step_dt_str, '%d.%m.%Y %H:%M:%S')
+            step_dt = datetime.strptime(step_dt_str, '%d.%m.%Y %H:%M:%S').replace(tzinfo=tz)
             difference = dt - step_dt
             hours_difference = difference.total_seconds() / 3600
 
