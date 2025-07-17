@@ -13,7 +13,7 @@ from connections import execute_sql
 from core.router import router
 
 
-with open("logging_config.yaml", "r") as f:
+with open("config/logging_config.yaml", "r") as f:
     config = yaml.safe_load(f)
     logging.config.dictConfig(config)
 
