@@ -19,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        branch: ${branch}
     container_name: answering_machine
     restart: always
     env_file:
