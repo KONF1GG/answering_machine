@@ -44,7 +44,7 @@ def non_category(mes: dict):
                 upd_params = (dt_str, id_str, id_int, chatBot)
                 execute_sql('update', upd_query, upd_params)
 
-                return 'Какой у Вас вопрос?'
+                return 'Здравствуйте! Чем могу помочь?'
 
             else:
                 execute_sql('update', """
@@ -74,4 +74,4 @@ def non_category(mes: dict):
                 WHERE id_str = %s AND id_int = %s AND chat_bot = %s
                 """, (dt_now, id_str, id_int, chatBot))
 
-        return 'Какой у Вас вопрос?'
+        return 'Здравствуйте! Чем могу помочь?'
