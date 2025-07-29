@@ -39,7 +39,7 @@ class Prompt:
         elif key == 'isBlocked':
             return prompt_functions.isBlocked(self.login)
         elif key == 'isFailure':
-            return prompt_functions.isFailure(self.login)
+            return prompt_functions.isFailure(self.login, self.mes)
         elif key == 'isIndexing':
             return prompt_functions.isIndexing(self.login)
         elif key == 'isInstallment':

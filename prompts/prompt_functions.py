@@ -4,6 +4,7 @@ import json
 import requests
 
 from config import HTTP_1C, HTTP_REDIS, HTTP_VECTOR
+from actions.management import failure_sql
 
 #запрос в векторную базу
 def getVector(text, mes):
@@ -67,7 +68,7 @@ def isIndexing(login):
     return False
 
 # Проверка на наличие ошибок
-def isFailure(login):
+def isFailure(login, mes):
     with requests.get(f'{HTTP_REDIS}login:{login}') as response:
         data = json.loads(json.loads(response.text))
 
@@ -81,12 +82,14 @@ def isFailure(login):
         with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@host:[{hostId}%20{hostId}]%27') as fai_host:
             data = fai_host.text
         if data != 'false':
+            failure_sql(mes, data)
             return True
         
     for address in addressCodes:
         with requests.get(f'{HTTP_REDIS}raw?query=FT.SEARCH%20idx:failure%20%27@address:[{address}%20{address}]%27') as fai_add:
             data = fai_add.text
         if data != 'false':
+            failure_sql(mes, data)
             return True       
     return False
 

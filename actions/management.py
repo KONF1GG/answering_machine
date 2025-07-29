@@ -1,6 +1,7 @@
 from datetime import datetime
 from connections import execute_sql
 import pytz
+import json
 
 
 def non_category(mes: dict):
@@ -67,3 +68,31 @@ def non_category(mes: dict):
                 """, (dt_now, id_str, id_int, chatBot))
 
         return 'Здравствуйте! Чем могу помочь?'
+
+
+def failure_sql(mes, failure_text):
+    id_int = mes['id_int']
+    id_str = mes['id_str']
+    chatBot = mes['chatBot']
+    dt = mes['dt']
+    login = mes['login']
+
+    delete_failure_query = '''
+                        DELETE FROM failure_message 
+                        WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+                    '''
+    params_delete_failure = (id_int, id_str, chatBot)
+    execute_sql('delete', delete_failure_query, params_delete_failure)
+
+    failure_data = json.loads(failure_text)
+    failure_code = list(failure_data.keys())[0].split(':')[1]
+    
+    insert_failure_query = '''
+                        INSERT INTO failure_message
+                        (id_str, id_int, failure, dt, login, chat_bot)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    '''
+    
+    ins_params = (id_str, id_int, failure_code, dt, login, chatBot)
+
+    execute_sql('insert', insert_failure_query, ins_params)
