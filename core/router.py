@@ -1,13 +1,18 @@
 import actions.action_functions as af
 import core.conditions as con
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def condition(mes, key):
+    logging.info(f'condition {key}')
     func = getattr(con, key, None)
     if callable(func):
         return func(mes)
     else:
-        print(f'Function {key} not found')
+        logging.debug(f'Function {key} not found')
     return False
 
 
@@ -31,45 +36,49 @@ def router(key: str, mes: dict, data: dict):
     """
     
     while key and key != 'finish':
-        todo = data[key]['todo']
+        if key not in data:
+            break
 
+        step = data[key]
+        todo = step.get('todo')
+
+        logging.info(f'! ! ! ! {key} ! ! ! !')
         if 'condition' in key:
-            yes = data[key]['ifYes']
-            no = data[key]['ifNo']
-            if condition(mes, todo):
-                key = yes
+            yes = step.get('ifYes')
+            no = step.get('ifNo')
+            if yes is None or no is None:
+                key = 'finish'
             else:
-                key = no
-            continue
-
-        next_step = data[key]['next']
+                if condition(mes, todo):
+                    key = yes
+                else:
+                    key = no
+            continue  
 
         if 'action' in key:
             if todo == 'empty':
-                key = next_step
-                continue
+                key = step.get('next', 'finish')
             elif todo == 'get_login':
                 new_mes = af.get_login(mes)
-                if new_mes['login'] != 'Null':
+                if new_mes.get('login') != 'Null':
                     mes = new_mes
-                    key = next_step
+                key = step.get('next', 'finish')
+            elif todo == 'get_houseId':
+                new_mes = af.get_houseId(mes)
+                if new_mes.get('login') != 'Null':
+                    mes = new_mes
+                    key = step.get('next', 'finish')
                 else:
-                    mes = new_mes
                     key = 'finish'
-                continue
-            elif todo == 'find_login':
-                category_status = af.find_login(mes)
-                if category_status == 'Подключение':
-                    next_step = 'action9'
             else:
                 func = getattr(af, todo, None)
                 if callable(func):
                     func(mes)
                 else:
-                    raise AttributeError(f"Функция '{todo}' не найдена в 'af'")
-                key = next_step
-                continue
+                    raise AttributeError(f"Функция '{todo}' не найдена")
+                key = step.get('next', 'finish')
+            continue  
 
-        key = next_step
+        key = step.get('next', 'finish') 
 
     return 'end'

@@ -1,9 +1,12 @@
+import logging
 import json
-
 import requests
 
 from config import HTTP_1C, HTTP_61
 from connections import execute_sql
+
+# Логгер
+logger = logging.getLogger(__name__)
 
 
 def get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, date):
@@ -20,18 +23,25 @@ def get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, date):
         category (str): Категория сообщения.
         date (datetime): Время для фильтрации при удалении.
     """
-    
+    logger.info('get_to_1c', extra={'id_str': id_str, 'id_int': id_int})
+
     if ans == 'Передать диспетчеру':
         query = """
             DELETE FROM ChatStory 
             WHERE id_int = %s AND id_str = %s AND chat_bot = %s AND dt > %s
         """
         params_db = (id_int, id_str, chatBot, date)
-        execute_sql('delete', query, params_db)
+        try:
+            execute_sql('delete', query, params_db)
+            logger.debug('История удалена из-за передачи диспетчеру', extra={'id_str': id_str, 'id_int': id_int})
+        except Exception as e:
+            logger.error(f'Ошибка при удалении истории: {e}', extra={'id_str': id_str, 'id_int': id_int})
 
-    url = f"{HTTP_61}hs/chatmessanger/newmessage" \
-        if chatBot == 'Чат бот:Jivo Chat, токен:' \
-        else f"{HTTP_1C}hs/chatmessanger/newmessage"
+    # Определение URL
+    if chatBot == 'Чат бот:Jivo Chat, токен:':
+        url = f"{HTTP_61}hs/chatmessanger/newmessage"
+    else:
+        url = f"{HTTP_1C}hs/chatmessanger/newmessage"
 
     post_ans = {
         "ChatBot": chatBot,
@@ -49,5 +59,6 @@ def get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, date):
     try:
         response = requests.post(url, data=json.dumps(post_ans))
         response.raise_for_status()
+        logger.info('Сообщение успешно отправлено в 1С/Jivo', extra={'id_str': id_str, 'id_int': id_int})
     except requests.RequestException as e:
-        print(f"Ошибка при выполнении запроса: {e}")
+        logger.error(f"Ошибка при выполнении запроса: {e}", extra={'id_str': id_str, 'id_int': id_int})

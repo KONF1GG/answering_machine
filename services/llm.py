@@ -1,13 +1,19 @@
 import threading
 import time
 from mistralai import Mistral
-#from openai import OpenAI
-import httpx
+from openai import OpenAI
+from httpx import Client
+import logging
 
-from config import API_KEY#, API_GPT, PROXY
+from config import API_KEY, API_GPT, PROXY
+
+
+logger = logging.getLogger(__name__)
+
 
 def mistral(message):
 
+    logging.info('mistral')
     timeout = 60
 
     """Вызывает API Mistral с таймаутом."""
@@ -25,7 +31,8 @@ def mistral(message):
             )
             result[0] = response.choices[0].message.content
         except Exception as e:
-            print(f"Ошибка API: {e}")
+            logging.debug(f"[Ошибка API mistral] {e}")
+            logging.error("Произошла ошибка mistral", exc_info=True)
 
     thread = threading.Thread(target=call_api)
     thread.start()
@@ -38,27 +45,18 @@ def mistral(message):
     return str(result[0]) if result[0] else None
 
 
-'''def gpt(message):
-
-    # Настройка прокси
-    proxy = PROXY  # Замените на адрес вашего прокси
-    proxies = {
-        "http://": proxy,
-        "https://": proxy,
-    }
-
-    # Создаем HTTP-клиент с поддержкой прокси
-    http_client = httpx.Client(proxies=proxies)
+def gpt(message):
+    logging.info('gpt')
+    http_client = Client(proxy=PROXY)
 
     client = OpenAI(
-    api_key=API_GPT,
-    http_client=http_client
+        api_key=API_GPT,
+        http_client=http_client
     )
 
     completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    store=True,
-    messages=message
+        model="gpt-4o-mini",
+        messages=message
     )
-    lala = completion.choices[0].message
-    return lala.content'''
+
+    return completion.choices[0].message.content

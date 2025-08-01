@@ -2,19 +2,29 @@ from datetime import datetime, timedelta
 import time
 import json
 import pytz
+import logging
+import logging.config
 
 import requests
+import yaml
 
 from config import HTTP_REDIS
 from connections import execute_sql
 from core.router import router
 
 
+with open("config/logging_config.yaml", "r") as f:
+    config = yaml.safe_load(f)
+    logging.config.dictConfig(config)
+
+logger = logging.getLogger(__name__)
+
+
 def get_message():
-    #"""
-    #Проверяет новые сообщения из БД за последние 5 минут, обновляет статус и 
-    #запускает диалоговый роутер.
-    #"""
+    """
+    Проверяет новые сообщения из БД за последние 5 минут, обновляет статус и 
+    запускает диалоговый роутер.
+    """
 
     try:    
         tz = pytz.timezone('Asia/Yekaterinburg')      
@@ -38,6 +48,8 @@ def get_message():
             id_int = row[4]
             login = row[13]
             chatBot = row[21]
+
+            logging.info(f'Найдено сообщение', extra={'id_str':id_str, 'id_int':id_int, 'mes':mes})
 
             if mes == 'Очистить' and chatBot == 'Чат бот:Jivo Chat, токен:':
                 del_query_story = 'delete from ChatStory where id_str = %s and id_int = %s and chat_bot = %s'
@@ -64,7 +76,7 @@ def get_message():
             params = (chatBot, messageId)
             execute_sql('update', query, params)
 
-            with requests.get(f'{HTTP_REDIS}scheme:petya') as response:
+            with requests.get(f'{HTTP_REDIS}scheme:petya_connection') as response:
                 data = json.loads(json.loads(response.text))
             #if id_int in [1036498173, 303455267]:
             router('start', mes_info, data)  
@@ -72,7 +84,8 @@ def get_message():
         return
 
     except Exception as e:
-       print(e)
+       logging.debug(f'{e}')
+       logging.error("Произошла ошибка", exc_info=True)
     return
     
 

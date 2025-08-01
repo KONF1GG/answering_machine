@@ -3,12 +3,21 @@ from connections import execute_sql
 import pytz
 import json
 
+import logging
+import json
+
+logger = logging.getLogger(__name__)
+
 
 def non_category(mes: dict):
     tz = pytz.timezone('Asia/Yekaterinburg')      
     id_str = mes['id_str']
     id_int = mes['id_int']
     chatBot = mes['chatBot']
+
+
+    logging.info('non_category', extra={'id_str':id_str, 'id_int':id_int})
+
 
     query = """
         SELECT step 
@@ -24,7 +33,7 @@ def non_category(mes: dict):
             dt = datetime.now(tz)
             dt_str = dt.strftime('%d.%m.%Y %H:%M:%S')
             step_dt_str = row[0].split(';')[1]
-            step_dt = datetime.strptime(step_dt_str, '%d.%m.%Y %H:%M:%S')
+            step_dt = datetime.strptime(step_dt_str, '%d.%m.%Y %H:%M:%S').replace(tzinfo=tz)
             difference = dt - step_dt
             hours_difference = difference.total_seconds() / 3600
 
