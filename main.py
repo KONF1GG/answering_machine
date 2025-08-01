@@ -76,7 +76,7 @@ def get_message():
             params = (chatBot, messageId)
             execute_sql('update', query, params)
 
-            with requests.get(f'{HTTP_REDIS}scheme:petya') as response:
+            with requests.get(f'{HTTP_REDIS}scheme:petya_connection') as response:
                 data = json.loads(json.loads(response.text))
             #if id_int in [1036498173, 303455267]:
             router('start', mes_info, data)  

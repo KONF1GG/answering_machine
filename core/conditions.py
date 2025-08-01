@@ -188,3 +188,91 @@ def is_first_mes_on_day(mes):
     except Exception as e:
         logger.error(f'Ошибка в is_first_mes_on_day: {e}', extra={'id_str': id_str, 'id_int': id_int})
         return False
+    
+
+def is_connection(mes):
+    id_int = mes['id_int']
+    id_str = mes['id_str_sql']
+    chatBot = mes['chatBot']
+
+    sql = """
+        SELECT category FROM ChatParameters 
+        WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+    """
+    params = (id_int, id_str, chatBot)
+    row = execute_sql('select_one', sql, params)
+
+    if row and row[0] == 'Подключение':
+        return True
+
+    return False
+
+
+def is_houseId(mes):
+    id_int = mes['id_int']
+    id_str = mes['id_str']
+    chatBot = mes['chatBot']
+
+    sql = """
+        SELECT address_info
+        FROM ChatParameters 
+        WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+    """
+    params = (id_int, id_str, chatBot)
+    row = execute_sql('select_one', sql, params)
+
+    if row and row[0] not in ['', None]:
+        address_info = json.loads(row[0])
+
+        if 'houseid' in address_info and address_info['houseid'] is not None:
+            return True
+
+    return False
+
+
+
+def is_address_info_mes(mes):
+    id_int = mes['id_int']
+    id_str = mes['id_str_sql']
+    chatBot = mes['chatBot']
+    prompt_scheme = mes['prompt']
+    prompt_name = 'first_identification'
+
+    with requests.get(f'{HTTP_REDIS}{prompt_scheme}') as res:
+        prompt_data = json.loads(json.loads(res.text))
+
+    prompt = next((d['template'] for d in prompt_data if d['name'] == prompt_name), '')
+    story = af.all_mes_on_day(mes, sql=False)
+    promt_mes = {"role": "system", "content": prompt}
+    story.insert(0, promt_mes)
+
+    ans = mistral(story)
+
+    if type(ans) == str:
+        if ans == 'Да':
+            time.sleep(1)
+            story_text = af.all_mes_on_day(mes, sql=False, text=True) + mes['text']
+            with requests.get(f'{HTTP_ADDRESS}adress?query={story_text}') as address_response:
+                data_adsress = json.loads(address_response.text)
+            if data_adsress:
+                login_serv_query = 'update ChatParameters set address_info = %s where id_int = %s and id_str = %s and chat_bot = %s'
+                login_serv_params = (str(data_adsress).replace("'", '"').replace('None', 'null'), id_int, id_str, chatBot)
+                execute_sql('update', login_serv_query, login_serv_params)
+                return True
+            return False
+
+    return False
+
+
+def is_contype(mes):
+    houseid = mes['login']
+    with requests.get(f'{HTTP_REDIS}adds:{houseid}') as response:
+        if response.text != 'false':
+            house_data = json.loads(json.loads(response.text))
+        else:
+            house_data = {'conn_type': []}
+
+    if house_data['conn_type'] != []:
+        return True
+
+    return False
