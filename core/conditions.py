@@ -249,7 +249,7 @@ def is_address_info_mes(mes):
     ans = mistral(story)
 
     if type(ans) == str:
-        if ans == 'Да':
+        if ans in ['Да', 'Да.', 'да', 'да.']:
             time.sleep(1)
             story_text = af.all_mes_on_day(mes, sql=False, text=True) + mes['text']
             with requests.get(f'{HTTP_ADDRESS}adress?query={story_text}') as address_response:

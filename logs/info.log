@@ -1,0 +1,145 @@
+[2025-08-01 09:44:08] DEBUG [root.get_message:87] 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:08] ERROR [root.get_message:88] Произошла ошибка
+Traceback (most recent call last):
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 323, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Unknown MySQL server host 'db' (11001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\workspace\answering_machine\main.py", line 40, in get_message
+    row = execute_sql('select_one', query, params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 36, in execute_sql
+    with closing(db_conneсtion()) as conn:
+                 ^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 14, in db_conneсtion
+    db_connection = mysql.connector.connect(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 140, in __init__
+    self.connect(**kwargs)
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\abstracts.py", line 1363, in connect
+    self._open_connection()
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 328, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:11] DEBUG [root.get_message:87] 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:11] ERROR [root.get_message:88] Произошла ошибка
+Traceback (most recent call last):
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 323, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Unknown MySQL server host 'db' (11001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\workspace\answering_machine\main.py", line 40, in get_message
+    row = execute_sql('select_one', query, params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 36, in execute_sql
+    with closing(db_conneсtion()) as conn:
+                 ^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 14, in db_conneсtion
+    db_connection = mysql.connector.connect(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 140, in __init__
+    self.connect(**kwargs)
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\abstracts.py", line 1363, in connect
+    self._open_connection()
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 328, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:13] DEBUG [root.get_message:87] 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:13] ERROR [root.get_message:88] Произошла ошибка
+Traceback (most recent call last):
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 323, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Unknown MySQL server host 'db' (11001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\workspace\answering_machine\main.py", line 40, in get_message
+    row = execute_sql('select_one', query, params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 36, in execute_sql
+    with closing(db_conneсtion()) as conn:
+                 ^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 14, in db_conneсtion
+    db_connection = mysql.connector.connect(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 140, in __init__
+    self.connect(**kwargs)
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\abstracts.py", line 1363, in connect
+    self._open_connection()
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 328, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:15] DEBUG [root.get_message:87] 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:15] ERROR [root.get_message:88] Произошла ошибка
+Traceback (most recent call last):
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 323, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Unknown MySQL server host 'db' (11001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\workspace\answering_machine\main.py", line 40, in get_message
+    row = execute_sql('select_one', query, params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 36, in execute_sql
+    with closing(db_conneсtion()) as conn:
+                 ^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 14, in db_conneсtion
+    db_connection = mysql.connector.connect(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 140, in __init__
+    self.connect(**kwargs)
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\abstracts.py", line 1363, in connect
+    self._open_connection()
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 328, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:17] DEBUG [root.get_message:87] 2005 (HY000): Unknown MySQL server host 'db' (11001)
+[2025-08-01 09:44:17] ERROR [root.get_message:88] Произошла ошибка
+Traceback (most recent call last):
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 323, in _open_connection
+    self._cmysql.connect(**cnx_kwargs)
+_mysql_connector.MySQLInterfaceError: Unknown MySQL server host 'db' (11001)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\workspace\answering_machine\main.py", line 40, in get_message
+    row = execute_sql('select_one', query, params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 36, in execute_sql
+    with closing(db_conneсtion()) as conn:
+                 ^^^^^^^^^^^^^^^
+  File "c:\workspace\answering_machine\connections.py", line 14, in db_conneсtion
+    db_connection = mysql.connector.connect(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\pooling.py", line 322, in connect
+    return CMySQLConnection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 140, in __init__
+    self.connect(**kwargs)
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\abstracts.py", line 1363, in connect
+    self._open_connection()
+  File "C:\Program Files (x86)\pytgon\Lib\site-packages\mysql\connector\connection_cext.py", line 328, in _open_connection
+    raise get_mysql_exception(
+mysql.connector.errors.DatabaseError: 2005 (HY000): Unknown MySQL server host 'db' (11001)
