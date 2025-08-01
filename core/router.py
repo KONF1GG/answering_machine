@@ -46,13 +46,14 @@ def router(key: str, mes: dict, data: dict):
         if 'condition' in key:
             yes = step.get('ifYes')
             no = step.get('ifNo')
-            if condition(mes, todo):
-                key = yes
+            if yes is None or no is None:
+                key = 'finish'
             else:
-                key = no
-            continue
-
-        next_step = data[key]['next']
+                if condition(mes, todo):
+                    key = yes
+                else:
+                    key = no
+            continue  
 
         if 'action' in key:
             if todo == 'empty':
@@ -76,8 +77,8 @@ def router(key: str, mes: dict, data: dict):
                 else:
                     raise AttributeError(f"Функция '{todo}' не найдена")
                 key = step.get('next', 'finish')
-            continue
+            continue  
 
-        key = step.get('next', 'finish')
+        key = step.get('next', 'finish') 
 
     return 'end'
