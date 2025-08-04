@@ -46,8 +46,9 @@ def isInstallment(login):
         return False
 
 
-def isBlocked(login, time_to):  # ← имя функции я добавил, его, возможно, нет, но по смыслу это она
+def isBlocked(login, login_data):  # ← имя функции я добавил, его, возможно, нет, но по смыслу это она
     try:
+        time_to = login_data['time_to']
         if time_to is None:
             return True 
     
