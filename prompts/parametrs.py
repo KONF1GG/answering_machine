@@ -510,7 +510,8 @@ class Abonent:
 
                 if data[0]['description'] == 'Подорожает':
                     new_price = int(data[0]['price']) + int(data[0]['sum'])
-                    return str(new_price)
+                    return 'Сумма за следующий месяц:' + str(new_price)
+                return ''
         except Exception as e:
             logger.debug('Нет информации о цене', extra={'login': self.login})
             return 'Нет информации'
