@@ -489,3 +489,28 @@ class Abonent:
         except Exception as e:
             logger.debug('Ошибка при получении информации о камерах', extra={'login': self.login})
             return 'Ошибка'
+        
+    
+    def price(self):
+        logger.info('price', extra={'login': self.login})
+        try:
+            with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
+                data = json.loads(response.text)
+            return str(data[0]['price'])
+        except Exception as e:
+            logger.debug('Нет информации о цене', extra={'login': self.login})
+            return 'Нет информации'
+
+
+    def price_indexing(self):
+        logger.info('price_indexing', extra={'login': self.login})
+        try:
+            with requests.get(f'{HTTP_1C}hs/Grafana/anydata?query=price_indexation&login={self.login}') as response:
+                data = json.loads(response.text)
+
+                if data[0]['description'] == 'Подорожает':
+                    new_price = int(data[0]['price']) + int(data[0]['sum'])
+                    return new_price
+        except Exception as e:
+            logger.debug('Нет информации о цене', extra={'login': self.login})
+            return 'Нет информации'
