@@ -7,7 +7,7 @@ import requests
 
 from config import HTTP_REDIS
 from connections import execute_sql
-from services.llm import mistral
+from services.llm import gpt
 from prompts.extract_words import extract_words, extract_connection_words
 from services.get_to_1c import get_to_1c
 from actions.management import non_category
@@ -128,7 +128,7 @@ def find_login(mes):
             {"role": "system", "content": prompt},
             {"role": "user", "content": mes['text']}
         ]
-        ans = mistral(gpt_prompt)
+        ans = gpt(gpt_prompt)
         get_to_1c(
             id_str, id_int, chatBot, messageId, ans, '', category, mes['dt']
         )
@@ -203,7 +203,7 @@ def category(mes):
     promt_mes = {"role": "system", "content": prompt}
     story.insert(0, promt_mes)
 
-    ans = mistral(story)
+    ans = gpt(story)
     logging.info(f'Отданная категория: {ans}', extra={'id_str':id_str, 'id_int':id_int})
 
     story_query = """
@@ -333,7 +333,7 @@ def all_mes_category(mes):
 
     for attempt in range(retry_attempts):
         try:
-            ans = mistral(gpt_prompt)
+            ans = gpt(gpt_prompt)
             if ans is not None:
                 break
             else:
@@ -423,7 +423,7 @@ def find_address(mes):
             {"role": "system", "content": prompt},
             {"role": "user", "content": mes['text']}
         ]
-        ans = mistral(gpt_prompt)
+        ans = gpt(gpt_prompt)
         get_to_1c(
             id_str, id_int, chatBot, messageId, ans, '', category, mes['dt']
         )
@@ -547,7 +547,7 @@ def anser(mes):
         get_to_1c(id_str, id_int, chatBot, messageId, ans, login, category, mes['dt'])
     elif is_prompt == 1 and is_active == 1 and promt is not None:
         logging.info(f'Активная категория', extra={'id_str':id_str, 'id_int':id_int})
-        ans = mistral(message)
+        ans = gpt(message)
         logging.info(f'Ответ: {ans}', extra={'id_str':id_str, 'id_int':id_int})
         if ans is not None:
             if 'испетчер' in ans:
@@ -582,7 +582,7 @@ def anser(mes):
         else:
             promt_new_mes = {"role": "system", "content": promt_new}
             message[0] = promt_new_mes
-            ans = mistral(message)
+            ans = gpt(message)
             if ans is not None:
                 if 'испетчер' in ans:
                     ans = 'Передать диспетчеру'

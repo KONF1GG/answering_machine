@@ -6,7 +6,7 @@ import json
 import requests
 
 from connections import execute_sql
-from services.llm import mistral
+from services.llm import gpt
 from config import HTTP_REDIS, HTTP_ADDRESS
 import actions.action_functions as af
 
@@ -92,7 +92,7 @@ def is_abon_info_mes(mes):
         promt_mes = {"role": "system", "content": prompt}
         story.insert(0, promt_mes)
 
-        ans = mistral(story)
+        ans = gpt(story)
 
         if type(ans) == str:
             if ans == 'Да':
@@ -249,7 +249,7 @@ def is_address_info_mes(mes):
     promt_mes = {"role": "system", "content": prompt}
     story.insert(0, promt_mes)
 
-    ans = mistral(story)
+    ans = gpt(story)
 
     if type(ans) == str:
         if ans in ['Да', 'Да.', 'да', 'да.']:
