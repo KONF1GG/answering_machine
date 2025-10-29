@@ -2090,3 +2090,201 @@ mistralai.models.sdkerror.SDKError: API error occurred: Status 429
 [2025-10-29 16:03:49] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
 [2025-10-29 16:03:49] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
 [2025-10-29 16:03:49] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:03:51] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:03:51] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:03:51] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:03:53] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:03:53] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:03:53] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:03:55] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:03:55] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:03:55] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:03:57] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:03:57] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:03:57] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:03:58] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:03:58] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:03:58] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:00] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:00] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:00] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:02] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:02] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:02] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:04] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:04] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:04] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:06] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:06] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:06] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:08] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:08] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:08] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:10] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:10] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:10] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:11] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:11] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:11] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:13] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:13] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:13] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:15] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:15] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:15] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:17] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:17] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:17] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:19] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:19] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:19] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:20] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:20] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:20] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:22] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:22] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:22] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:24] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:24] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:24] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:26] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:26] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:26] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:28] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:28] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:28] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:29] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:29] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:29] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:31] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:31] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:31] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:33] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:33] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:33] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:35] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:35] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:35] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:37] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:37] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:37] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:39] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:39] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:39] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:40] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:40] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:40] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:42] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:42] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:42] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:44] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:44] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:44] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:46] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:46] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:46] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:48] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:48] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:48] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:49] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:49] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:49] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:51] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:51] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:51] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:53] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:53] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:53] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:55] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:55] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:55] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:57] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:57] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:57] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:04:58] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:04:58] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:04:58] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:00] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:00] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:00] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:02] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:02] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:02] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:04] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:04] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:04] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:06] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:06] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:06] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:08] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:08] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:08] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:10] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:10] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:10] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:11] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:11] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:11] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:13] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:13] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:13] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:15] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:15] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:15] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:17] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:17] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:17] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:19] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:19] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:19] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:20] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:20] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:20] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:22] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:22] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:22] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:24] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:24] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:24] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:26] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:26] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:26] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:28] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:28] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:28] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:29] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:29] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:29] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:31] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:31] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:31] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:33] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:33] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:33] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:35] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:35] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:35] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:37] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:37] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:37] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:39] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:39] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:39] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:41] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:41] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:41] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:42] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:42] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:42] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:44] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:44] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:44] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:46] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:46] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:46] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:48] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:48] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:48] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
+[2025-10-29 16:05:50] DEBUG [mysql.connector.make_auth:340] Starting authorization phase
+[2025-10-29 16:05:50] DEBUG [mysql.connector.make_auth:354] The provided initial strategy is mysql_native_password
+[2025-10-29 16:05:50] DEBUG [mysql.connector._handle_server_response:278] mysql_native_password completed succesfully
