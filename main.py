@@ -27,19 +27,19 @@ def get_message():
     """
 
     #try:    
-        tz = pytz.timezone('Asia/Yekaterinburg')      
-        dt_5min = datetime.now(tz) - timedelta(minutes=5)
+    tz = pytz.timezone('Asia/Yekaterinburg')      
+    dt_5min = datetime.now(tz) - timedelta(minutes=5)
             
-        query = '''
+    query = '''
                 select * from ChatStory join ChatParameters
                 on ChatStory.id_int = ChatParameters.id_int and ChatStory.id_str = ChatParameters.id_str
                 where ChatStory.ai_send = 0 and ChatStory.empl = 0 
                 and ChatStory.dt > %s limit 1
             '''
-        params = (dt_5min,)
-        row = execute_sql('select_one', query, params)
+    params = (dt_5min,)
+    row = execute_sql('select_one', query, params)
             
-        if row:
+    if row:
 
             id_str = row[0]
             mes = row[1]
@@ -81,7 +81,7 @@ def get_message():
             #if id_int in [1036498173, 303455267]:
             router('start', mes_info, data)  
             time.sleep(5) 
-        return
+    return
 
     #except Exception as e:
      #  logging.debug(f'{e}')
