@@ -356,26 +356,26 @@ def all_mes_category(mes):
         logging.info(f'Ответ: {ans}, категория: {category}', extra={'id_str':id_str, 'id_int':id_int})
         ans = category
 
-    # === Обновляем БД ===
-    query_update_story = """
-        UPDATE ChatStory 
-        SET category = %s 
-        WHERE id_int = %s AND id_str = %s AND messageId = %s
-    """
-    params_update_story = (ans, id_int, id_str, messageId)
-    execute_sql('update', query_update_story, params_update_story)
-
-    if ans != category:
-        final_category = ans if ans in category_list else 'Категория неопределена'
-        query_update_parameters = """
-            UPDATE ChatParameters 
+    if ans != 'Подключение':# === Обновляем БД ===
+        query_update_story = """
+            UPDATE ChatStory 
             SET category = %s 
-            WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+            WHERE id_int = %s AND id_str = %s AND messageId = %s
         """
+        params_update_story = (ans, id_int, id_str, messageId)
+        execute_sql('update', query_update_story, params_update_story)
 
-        logging.info(f'Ответ: {ans}, категория: {final_category}', extra={'id_str':id_str, 'id_int':id_int})
-        params_update_parameters = (final_category, id_int, id_str, chatBot)
-        execute_sql('update', query_update_parameters, params_update_parameters)
+        if ans != category:
+            final_category = ans if ans in category_list else 'Категория неопределена'
+            query_update_parameters = """
+                UPDATE ChatParameters 
+                SET category = %s 
+                WHERE id_int = %s AND id_str = %s AND chat_bot = %s
+            """
+
+            logging.info(f'Ответ: {ans}, категория: {final_category}', extra={'id_str':id_str, 'id_int':id_int})
+            params_update_parameters = (final_category, id_int, id_str, chatBot)
+            execute_sql('update', query_update_parameters, params_update_parameters)
 
 
 def find_address(mes):
