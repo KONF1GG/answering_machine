@@ -391,14 +391,16 @@ def find_address(mes):
     """
     params_db = (id_int, id_str, chatBot)
     row = execute_sql('select_one', query, params_db)
-
+    print(row)
     category = row[1] if row and row[1] else ''
 
     if row and row[0] not in ['houseId_search_mes_sent', 'houseId_search_mes_sent_1']:
+        print('if')
         ans = 'Здравствуйте! Пожалуйста, уточните ваш адрес для проверки технической возможности подключения.'
         get_to_1c(
             id_str, id_int, chatBot, messageId, ans, '', category, mes['dt']
         )
+        print('1c')
         upd_query = """
             UPDATE ChatParameters 
             SET step = "houseId_search_mes_sent" 
@@ -406,6 +408,7 @@ def find_address(mes):
         """
         upd_params = (id_int, id_str, chatBot)
         execute_sql('update', upd_query, upd_params)
+        print('upd')
     elif row and row[0] == 'houseId_search_mes_sent':
         prompt_name = 'support_address_identific'
         prompt_scheme = mes['prompt']
