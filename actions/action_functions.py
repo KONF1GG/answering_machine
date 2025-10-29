@@ -356,7 +356,7 @@ def all_mes_category(mes):
         logging.info(f'Ответ: {ans}, категория: {category}', extra={'id_str':id_str, 'id_int':id_int})
         ans = category
 
-    if ans != 'Подключение':# === Обновляем БД ===
+    if ans != 'Подключение' and category != 'Подключение':# === Обновляем БД ===
         query_update_story = """
             UPDATE ChatStory 
             SET category = %s 
