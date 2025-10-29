@@ -71,6 +71,7 @@ def get_message():
                 'dt': dt,
                 'prompt': 'scheme:prompt'
             }
+            print(mes_info)
 
             query = 'update ChatStory set ai_send = 1, chat_bot = %s where messageId = %s'
             params = (chatBot, messageId)

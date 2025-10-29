@@ -1,12 +1,13 @@
-from dotenv import dotenv_values
+# config.py
+from dotenv import load_dotenv
 import os
 
-dotenv_values()
+load_dotenv()  # ← это загружает .env в os.environ
 
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
-MYSQL_HOST = os.getenv('MYSQL_HOST', 'db')
-MYSQL_PORT = os.getenv('MYSQL_PORT', 3306)
+MYSQL_HOST = os.getenv('MYSQL_HOST')
+MYSQL_PORT = os.getenv('MYSQL_PORT', '3306')  # порт — строка или int?
 
 #API_KEY = os.getenv('API_KEY')
 API_KEY = os.getenv('API_KEY')

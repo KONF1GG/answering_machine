@@ -1,0 +1,114 @@
+{
+    "start": {
+        "name": "Старт",
+        "todo": "Start",
+        "type": "start",
+        "next": "action1"
+    },
+    "action1": {
+        "name": "Действие1",
+        "todo": "empty",
+        "type": "action",
+        "next": "condition6"
+    },
+    "condition1": {
+        "name": "Условие1",
+        "todo": "is_login",
+        "type": "condition",
+        "ifNo": "action2",
+        "ifYes": "action4"
+    },
+    "action2": {
+        "name": "Действие2",
+        "todo": "empty",
+        "type": "action",
+        "next": "condition2"
+    },
+    "condition2": {
+        "name": "Условие2",
+        "todo": "is_abon_info_mes",
+        "type": "condition",
+        "ifNo": "action3",
+        "ifYes": "action4"
+    },
+    "action3": {
+        "name": "Действие3",
+        "todo": "find_login",
+        "type": "action",
+        "next": "finish"
+    },
+    "action4": {
+        "name": "Действие4",
+        "todo": "get_login",
+        "type": "action",
+        "next": "condition3"
+    },
+    "condition4": {
+        "name": "Условие4",
+        "todo": "is_physic",
+        "type": "condition",
+        "ifNo": "action12",
+        "ifYes": "action9"
+    },
+    "action9": {
+        "name": "Действие9",
+        "todo": "prompt",
+        "type": "action",
+        "next": "action11"
+    },
+    "action11": {
+        "name": "Действие11",
+        "todo": "anser",
+        "type": "action",
+        "next": "finish"
+    },
+    "finish": {
+        "name": "Завершение",
+        "todo": "Finish",
+        "type": "finish"
+    },
+    "action12": {
+        "name": "Действие12",
+        "todo": "empty",
+        "type": "action",
+        "next": "finish"
+    },
+    "condition6": {
+        "name": "Условие6",
+        "todo": "is_first_mes_on_day",
+        "type": "condition",
+        "ifNo": "action6",
+        "ifYes": "action5"
+    },
+    "action5": {
+        "name": "Действие5",
+        "todo": "category",
+        "type": "action",
+        "next": "condition1"
+    },
+    "action6": {
+        "name": "Действие6",
+        "todo": "all_mes_on_day",
+        "type": "action",
+        "next": "action7"
+    },
+    "action7": {
+        "name": "Действие7",
+        "todo": "all_mes_category",
+        "type": "action",
+        "next": "condition1"
+    },
+    "condition3": {
+        "name": "Условие3",
+        "todo": "is_login",
+        "type": "condition",
+        "ifNo": "action3",
+        "ifYes": "action8"
+    },
+    "action8": {
+        "name": "Действие8",
+        "todo": "empty",
+        "type": "action",
+        "next": "condition4"
+    }
+}
