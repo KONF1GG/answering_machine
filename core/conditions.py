@@ -202,7 +202,7 @@ def is_connection(mes):
     params = (id_int, id_str, chatBot)
     row = execute_sql('select_one', sql, params)
     
-    if is_login:
+    if is_login(mes):
         return False 
     
     if row and row[0] == 'Подключение':
